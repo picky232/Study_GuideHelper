@@ -111,28 +111,22 @@
 
 **목표: 개발 환경 완성 + 첫 화면 렌더링**
 
-- [ ] Vite + React 프로젝트 생성
+- [x] Vite + React 프로젝트 생성
   - `npm create vite@latest study-planner -- --template react`
-  - TypeScript 적용 여부 결정 (JS 추천 — 속도 우선)
-- [ ] 폴더 구조 설계
-  ```
-  /src
-    /components   (공통 UI 컴포넌트)
-    /pages        (라우팅 페이지)
-    /api          (API 호출 함수)
-    /store        (전역 상태)
-    /utils        (유틸 함수)
-  /api            (Vercel Serverless Functions)
-  ```
-- [ ] 필수 라이브러리 설치
+  - JS 적용 (속도 우선, plan 권장대로)
+- [x] 폴더 구조 설계
+  - plan.md 평면구조 대신 DDD 4계층 구조 채택 (`FrontEnd/claude.md` 참고: domains/infrastructure/presentation/app)
+- [x] 필수 라이브러리 설치
   - `react-router-dom` (라우팅)
   - `@supabase/supabase-js` (DB 연동)
   - `axios` (API 호출)
-  - `react-calendar` or `fullcalendar` (캘린더)
-  - `tailwindcss` (스타일링)
-- [ ] Vercel 프로젝트 생성 + GitHub 연결 (자동 배포 설정)
+  - `react-calendar` (캘린더)
+  - `tailwindcss` + `@tailwindcss/vite` (스타일링)
+- [x] Vercel 프로젝트 생성 + GitHub 연결 (자동 배포 설정) — dev/main 브랜치 분리, PR 머지 확인됨
 - [ ] `.env` 파일 구성 (Supabase URL·Key, Claude API Key, FCM Key)
-- [ ] 기본 라우팅 설정 (`/`, `/goal/new`, `/calendar`, `/feedback`, `/settings`)
+  - FrontEnd `.env`: Firebase 값 입력 완료
+  - BackEnd `.env`: Supabase/Claude/FCM 키 — 백엔드 미착수라 보류 (6/25~ 진행)
+- [x] 기본 라우팅 설정 (`/`, `/goal/new`, `/calendar`, `/feedback`, `/settings`, `/login`, `/signup`)
 
 **완료 기준:** `npm run dev` 실행 시 기본 레이아웃 렌더링 확인
 
