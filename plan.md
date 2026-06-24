@@ -125,7 +125,7 @@
 - [x] Vercel 프로젝트 생성 + GitHub 연결 (자동 배포 설정) — dev/main 브랜치 분리, PR 머지 확인됨
 - [ ] `.env` 파일 구성 (Supabase URL·Key, Claude API Key, FCM Key)
   - FrontEnd `.env`: Firebase 값 입력 완료
-  - BackEnd `.env`: Supabase/Claude/FCM 키 — 백엔드 미착수라 보류 (6/25~ 진행)
+  - BackEnd `.env`: Supabase URL·Service Role Key 입력 완료 (6/25). Claude/FCM 키는 해당 작업일에 진행
 - [x] 기본 라우팅 설정 (`/`, `/goal/new`, `/calendar`, `/feedback`, `/settings`, `/login`, `/signup`)
 
 **완료 기준:** `npm run dev` 실행 시 기본 레이아웃 렌더링 확인
@@ -136,8 +136,8 @@
 
 **목표: 회원가입·로그인 동작 + DB 테이블 완성**
 
-- [ ] Supabase 프로젝트 생성
-- [ ] DB 테이블 설계 및 생성
+- [x] Supabase 프로젝트 생성
+- [x] DB 테이블 설계 및 생성
   ```sql
   -- 사용자
   users (id, email, name, daily_study_hours, notify_time, created_at)
@@ -153,17 +153,17 @@
   -- FCM 토큰
   fcm_tokens (id, user_id, token, created_at)
   ```
-- [ ] Row Level Security (RLS) 설정 — 본인 데이터만 접근 가능
-- [ ] 회원가입 페이지 UI 구현
+- [x] Row Level Security (RLS) 설정 — 본인 데이터만 접근 가능 (4개 테이블 정책 적용 완료)
+- [x] 회원가입 페이지 UI 구현
   - 이메일·비밀번호·이름 입력
-  - Supabase Auth 연동
-- [ ] 로그인 페이지 UI 구현
+  - Supabase Auth 연동 (`api/auth/signup` 경유, DB row 생성 확인)
+- [x] 로그인 페이지 UI 구현
   - 이메일·비밀번호 로그인
-  - JWT 토큰 저장 (localStorage)
-- [ ] 로그인 상태 전역 관리 (Context API or Zustand)
-- [ ] 보호 라우팅 설정 (비로그인 시 로그인 페이지로 리다이렉트)
+  - JWT 토큰 저장 (localStorage) — accessToken 발급 확인
+- [x] 로그인 상태 전역 관리 (Context API — `AuthContext`)
+- [x] 보호 라우팅 설정 (`ProtectedRoute`, 비로그인 시 `/login` 리다이렉트)
 
-**완료 기준:** 회원가입 → 로그인 → 홈 이동 동작 확인
+**완료 기준:** 회원가입 → 로그인 → 홈 이동 동작 확인 — `vercel dev` + curl로 signup/login API 전체 흐름 검증 완료 (6/25)
 
 ---
 
