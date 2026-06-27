@@ -137,10 +137,11 @@ function GoalGeneratePage() {
         goalId: goal.id,
         subject: goal.subject,
         examType: goal.exam_type,
+        examFormat: goal.exam_format,
         deadline: goal.deadline,
         dailyHours: goal.daily_hours,
-        studyRange: goal.study_range,
-        currentLevel: goal.current_level,
+        completedRange: goal.completed_range,
+        weakPoints: goal.weak_points,
       })
       setTasks(data.tasks)
       setStatus('preview')

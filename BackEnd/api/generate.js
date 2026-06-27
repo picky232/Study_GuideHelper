@@ -17,10 +17,10 @@ export default async function handler(req, res) {
 
   try {
     const userId = await getUserIdFromToken(req)
-    const { goalId, subject, examType, deadline, dailyHours, studyRange, currentLevel } = req.body
+    const { goalId, subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints } = req.body
 
     const generator = new ClaudePlanGenerator()
-    const tasks = await generator.generate({ subject, examType, deadline, dailyHours, studyRange, currentLevel })
+    const tasks = await generator.generate({ subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints })
 
     const schedules = tasks.map((t) => ({
       goal_id: goalId,
