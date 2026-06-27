@@ -1,14 +1,15 @@
-function TaskCard({ task, onToggle }) {
+function TaskCard({ task, onStart }) {
   return (
     <button
-      onClick={() => onToggle(task.id)}
+      onClick={() => !task.is_done && onStart(task)}
+      disabled={task.is_done}
       className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200 active:scale-[0.98] ${
         task.is_done
-          ? 'border-purple-100 bg-purple-50'
+          ? 'border-purple-100 bg-purple-50 opacity-70'
           : 'border-gray-100 bg-white shadow-sm'
       }`}
     >
-      {/* 체크 버튼 */}
+      {/* 체크/플레이 버튼 */}
       <div
         className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-200 ${
           task.is_done
@@ -16,9 +17,13 @@ function TaskCard({ task, onToggle }) {
             : 'border-gray-300 bg-white'
         }`}
       >
-        {task.is_done && (
+        {task.is_done ? (
           <svg className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        ) : (
+          <svg className="h-3 w-3 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
           </svg>
         )}
       </div>
@@ -32,7 +37,9 @@ function TaskCard({ task, onToggle }) {
         >
           {task.title}
         </span>
-        <span className="text-xs text-gray-400">{task.duration_min}분</span>
+        <span className="text-xs text-gray-400">
+          {task.is_done ? '완료' : `${task.duration_min}분 집중`}
+        </span>
       </div>
 
       {/* 복습 배지 */}

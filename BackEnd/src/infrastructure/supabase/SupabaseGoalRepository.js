@@ -2,17 +2,18 @@ import { supabase } from './client.js'
 import { Goal } from '../../domains/goal/entities/Goal.js'
 
 export class SupabaseGoalRepository {
-  async create({ userId, subject, examType, deadline, dailyHours, studyRange, currentLevel }) {
+  async create({ userId, subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints }) {
     const { data, error } = await supabase
       .from('goals')
       .insert({
         user_id: userId,
         subject,
         exam_type: examType,
+        exam_format: examFormat || '필기',
         deadline,
         daily_hours: dailyHours,
-        study_range: studyRange,
-        current_level: currentLevel,
+        completed_range: completedRange,
+        weak_points: weakPoints,
         status: 'active',
       })
       .select()
@@ -24,10 +25,11 @@ export class SupabaseGoalRepository {
       userId: data.user_id,
       subject: data.subject,
       examType: data.exam_type,
+      examFormat: data.exam_format,
       deadline: data.deadline,
       dailyHours: data.daily_hours,
-      studyRange: data.study_range,
-      currentLevel: data.current_level,
+      completedRange: data.completed_range,
+      weakPoints: data.weak_points,
       status: data.status,
     })
   }
@@ -46,10 +48,11 @@ export class SupabaseGoalRepository {
       userId: d.user_id,
       subject: d.subject,
       examType: d.exam_type,
+      examFormat: d.exam_format,
       deadline: d.deadline,
       dailyHours: d.daily_hours,
-      studyRange: d.study_range,
-      currentLevel: d.current_level,
+      completedRange: d.completed_range,
+      weakPoints: d.weak_points,
       status: d.status,
     }))
   }
@@ -67,10 +70,11 @@ export class SupabaseGoalRepository {
       userId: data.user_id,
       subject: data.subject,
       examType: data.exam_type,
+      examFormat: data.exam_format,
       deadline: data.deadline,
       dailyHours: data.daily_hours,
-      studyRange: data.study_range,
-      currentLevel: data.current_level,
+      completedRange: data.completed_range,
+      weakPoints: data.weak_points,
       status: data.status,
     })
   }

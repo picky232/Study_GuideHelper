@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import apiClient from '../../infrastructure/api/client'
 
 const EXAM_TYPES = ['자격증', '수능', '내신', '공무원', '어학', '기타']
+const EXAM_FORMATS = ['필기', '실기', '필기+실기']
 const DAILY_HOURS = [1, 2, 3, 4, 5, 6]
 
 function getDday(deadline) {
@@ -10,8 +11,7 @@ function getDday(deadline) {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const end = new Date(deadline)
-  const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24))
-  return diff
+  return Math.ceil((end - today) / (1000 * 60 * 60 * 24))
 }
 
 function StepIndicator({ current }) {
@@ -47,10 +47,11 @@ function GoalNewPage() {
   const [form, setForm] = useState({
     subject: '',
     examType: '',
+    examFormat: '필기',
     deadline: '',
     dailyHours: null,
-    studyRange: '',
-    currentLevel: 50,
+    completedRange: '',
+    weakPoints: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -87,10 +88,11 @@ function GoalNewPage() {
       const { data } = await apiClient.post('/goal', {
         subject: form.subject,
         examType: form.examType,
+        examFormat: form.examFormat,
         deadline: form.deadline,
         dailyHours: form.dailyHours,
-        studyRange: form.studyRange,
-        currentLevel: form.currentLevel,
+        completedRange: form.completedRange,
+        weakPoints: form.weakPoints,
       })
       navigate('/goal/generate', { state: { goal: data.goal } })
     } catch (err) {
@@ -118,7 +120,8 @@ function GoalNewPage() {
       </div>
 
       <div className="mx-auto w-full max-w-sm flex-1 px-5 pt-4">
-        {/* STEP 1 */}
+
+        {/* STEP 1 — 시험 정보 */}
         {step === 1 && (
           <div className="rounded-3xl bg-white p-6 shadow-sm">
             <h2 className="mb-1 text-base font-bold text-gray-800">무엇을 준비하나요?</h2>
@@ -134,7 +137,7 @@ function GoalNewPage() {
               />
             </div>
 
-            <div>
+            <div className="mb-4">
               <label className="mb-2 block text-xs font-semibold text-gray-500">시험 종류</label>
               <div className="grid grid-cols-3 gap-2">
                 {EXAM_TYPES.map((type) => (
@@ -153,10 +156,30 @@ function GoalNewPage() {
                 ))}
               </div>
             </div>
+
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-gray-500">시험 유형</label>
+              <div className="grid grid-cols-3 gap-2">
+                {EXAM_FORMATS.map((fmt) => (
+                  <button
+                    key={fmt}
+                    type="button"
+                    onClick={() => update('examFormat', fmt)}
+                    className={`rounded-xl py-2.5 text-sm font-medium transition ${
+                      form.examFormat === fmt
+                        ? 'bg-violet-600 text-white shadow-sm'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {fmt}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* STEP 2 */}
+        {/* STEP 2 — 일정 */}
         {step === 2 && (
           <div className="rounded-3xl bg-white p-6 shadow-sm">
             <h2 className="mb-1 text-base font-bold text-gray-800">언제까지, 얼마나?</h2>
@@ -203,51 +226,47 @@ function GoalNewPage() {
           </div>
         )}
 
-        {/* STEP 3 */}
+        {/* STEP 3 — 현재 학습 상황 */}
         {step === 3 && (
           <div className="rounded-3xl bg-white p-6 shadow-sm">
-            <h2 className="mb-1 text-base font-bold text-gray-800">현재 상태를 알려주세요</h2>
-            <p className="mb-5 text-xs text-gray-400">AI가 최적 계획을 설계합니다</p>
+            <h2 className="mb-1 text-base font-bold text-gray-800">현재 학습 상황을 알려주세요</h2>
+            <p className="mb-5 text-xs text-gray-400">AI가 남은 단원만 설계하고, 완료한 건 복습으로 배치합니다</p>
 
-            <div className="mb-5">
-              <label className="mb-1.5 block text-xs font-semibold text-gray-500">학습 범위 (선택)</label>
+            <div className="mb-4">
+              <label className="mb-1.5 block text-xs font-semibold text-gray-500">
+                완료한 단원 <span className="font-normal text-gray-400">(선택)</span>
+              </label>
               <textarea
-                placeholder="예: 1~5과목 전체, 미적분·확통, 기출 5개년"
-                value={form.studyRange}
-                onChange={(e) => update('studyRange', e.target.value)}
+                placeholder={`예: UI 테스트, 응용프로그래밍 언어 활용\n예: 극한과 연속, 미분법까지 완료\n예: 아직 시작 안 함`}
+                value={form.completedRange}
+                onChange={(e) => update('completedRange', e.target.value)}
                 rows={3}
                 className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-purple-400 focus:bg-white focus:ring-2 focus:ring-purple-100"
               />
+              <p className="mt-1 text-xs text-gray-400">여기까지 끝냈으니 다음 단원부터 + 해당 단원 복습 계획 자동 생성</p>
             </div>
 
-            <div>
-              <label className="mb-3 block text-xs font-semibold text-gray-500">
-                현재 수준{' '}
-                <span className="text-purple-600 font-bold">{form.currentLevel}%</span>
+            <div className="mb-5">
+              <label className="mb-1.5 block text-xs font-semibold text-gray-500">
+                약점 단원 <span className="font-normal text-gray-400">(선택)</span>
               </label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="5"
-                value={form.currentLevel}
-                onChange={(e) => update('currentLevel', Number(e.target.value))}
-                className="w-full accent-purple-600"
+              <textarea
+                placeholder={`예: 데이터베이스 정규화, SQL 조인\n예: 적분 응용 문제, 급수`}
+                value={form.weakPoints}
+                onChange={(e) => update('weakPoints', e.target.value)}
+                rows={2}
+                className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-purple-400 focus:bg-white focus:ring-2 focus:ring-purple-100"
               />
-              <div className="mt-1 flex justify-between text-xs text-gray-400">
-                <span>처음 시작</span>
-                <span>절반 완료</span>
-                <span>거의 완성</span>
-              </div>
+              <p className="mt-1 text-xs text-gray-400">해당 단원 학습 시간 늘리고 복습 주기 단축</p>
             </div>
 
             {/* 요약 */}
-            <div className="mt-5 rounded-2xl bg-purple-50 p-4">
+            <div className="rounded-2xl bg-purple-50 p-4">
               <p className="mb-2 text-xs font-semibold text-purple-500">입력 요약</p>
               <div className="space-y-1 text-xs text-gray-600">
-                <p>과목: <span className="font-semibold">{form.subject}</span> ({form.examType})</p>
+                <p>과목: <span className="font-semibold">{form.subject}</span> ({form.examType} / {form.examFormat})</p>
                 <p>마감: <span className="font-semibold">{form.deadline}</span> (D-{dday})</p>
-                <p>하루: <span className="font-semibold">{form.dailyHours}시간</span></p>
+                <p>하루: <span className="font-semibold">{form.dailyHours}시간</span> · 총 {form.dailyHours * dday}시간</p>
               </div>
             </div>
           </div>

@@ -1,5 +1,3 @@
-import { CreateGoal } from '../src/domains/goal/useCases/CreateGoal.js'
-import { SupabaseGoalRepository } from '../src/infrastructure/supabase/SupabaseGoalRepository.js'
 import { handleCors } from '../src/infrastructure/http/cors.js'
 import { supabase } from '../src/infrastructure/supabase/client.js'
 
@@ -18,34 +16,38 @@ export default async function handler(req, res) {
   try {
     const userId = await getUserIdFromToken(req)
 
-    if (req.method === 'POST') {
-      const { subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints } = req.body
-      const createGoal = new CreateGoal(new SupabaseGoalRepository())
-      const goal = await createGoal.execute({ userId, subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints })
-      return res.status(201).json({ goal })
-    }
-
+    // 오늘 태스크 조회
     if (req.method === 'GET') {
+      const { date } = req.query
+      const targetDate = date || new Date().toISOString().split('T')[0]
+
       const { data, error } = await supabase
-        .from('goals')
+        .from('schedules')
         .select('*')
         .eq('user_id', userId)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
+        .eq('date', targetDate)
+        .order('is_review', { ascending: true })
+        .order('created_at', { ascending: true })
+
       if (error) throw new Error(error.message)
-      return res.status(200).json({ goals: data })
+      return res.status(200).json({ schedules: data })
     }
 
-    if (req.method === 'DELETE') {
-      const { id } = req.query
-      if (!id) throw new Error('목표 ID가 없습니다')
-      const { error } = await supabase
-        .from('goals')
-        .delete()
+    // 완료 체크 토글
+    if (req.method === 'PATCH') {
+      const { id, is_done } = req.body
+      if (!id) throw new Error('태스크 ID가 없습니다')
+
+      const { data, error } = await supabase
+        .from('schedules')
+        .update({ is_done })
         .eq('id', id)
         .eq('user_id', userId)
+        .select()
+        .single()
+
       if (error) throw new Error(error.message)
-      return res.status(200).json({ success: true })
+      return res.status(200).json({ schedule: data })
     }
 
     return res.status(405).json({ error: 'Method Not Allowed' })
