@@ -4,6 +4,7 @@ import { Login } from '../../domains/auth/useCases/Login'
 import { AuthApiRepository } from '../../infrastructure/api/AuthApiRepository'
 import {
   setToken,
+  setRefreshToken,
   clearToken,
   getStoredUser,
   setStoredUser,
@@ -25,6 +26,7 @@ export function AuthProvider({ children }) {
     const loginUseCase = new Login(authRepository)
     const result = await loginUseCase.execute({ email, password })
     setToken(result.accessToken)
+    if (result.refreshToken) setRefreshToken(result.refreshToken)
     setStoredUser(result.user)
     setUser(result.user)
     return result.user

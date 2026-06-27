@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'auth_token'
+const REFRESH_KEY = 'auth_refresh_token'
 const USER_KEY = 'auth_user'
 
 export function getToken() {
@@ -11,6 +12,15 @@ export function setToken(token) {
 
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(REFRESH_KEY)
+}
+
+export function getRefreshToken() {
+  return localStorage.getItem(REFRESH_KEY)
+}
+
+export function setRefreshToken(token) {
+  localStorage.setItem(REFRESH_KEY, token)
 }
 
 export function getStoredUser() {
