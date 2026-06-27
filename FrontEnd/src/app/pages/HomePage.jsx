@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import DonutChart from '../../presentation/components/home/DonutChart'
 import TaskCard from '../../presentation/components/home/TaskCard'
 import { mockTodayTasks, mockGoal, mockCoachingMessages } from '../../data/mockData'
@@ -36,6 +37,7 @@ function getCoachingEmoji(done, total) {
 }
 
 function HomePage() {
+  const navigate = useNavigate()
   const [tasks, setTasks] = useState(mockTodayTasks)
   const done = tasks.filter((t) => t.is_done).length
   const total = tasks.length
@@ -91,6 +93,17 @@ function HomePage() {
               <TaskCard key={task.id} task={task} onToggle={handleToggle} />
             ))}
           </div>
+
+          {/* 새 목표 추가 버튼 */}
+          <button
+            onClick={() => navigate('/goal/new')}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 py-4 text-sm font-medium text-purple-400 transition hover:border-purple-400 hover:text-purple-600"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            새 학습 목표 추가
+          </button>
         </div>
       </div>
     </div>
