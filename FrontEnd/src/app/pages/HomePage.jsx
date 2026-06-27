@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import DonutChart from '../../presentation/components/home/DonutChart'
 import TaskCard from '../../presentation/components/home/TaskCard'
 import GoalSelectorModal from '../../presentation/components/home/GoalSelectorModal'
+import StudyTimerModal from '../../presentation/components/home/StudyTimerModal'
 import { useGoal } from '../../presentation/hooks/useGoal'
 import { useSchedule } from '../../presentation/hooks/useSchedule'
 import { mockCoachingMessages } from '../../data/mockData'
@@ -44,6 +45,7 @@ function HomePage() {
   const { goal, goals, loading: goalLoading, selectGoal, deleteGoal } = useGoal()
   const { schedules, loading: schedLoading, toggleDone } = useSchedule(getTodayDate())
   const [showSelector, setShowSelector] = useState(false)
+  const [timerTask, setTimerTask] = useState(null)
 
   const done = schedules.filter((s) => s.is_done).length
   const total = schedules.length
@@ -152,7 +154,7 @@ function HomePage() {
                         is_done: s.is_done,
                         is_review: s.is_review,
                       }}
-                      onToggle={() => toggleDone(s.id, s.is_done)}
+                      onStart={(task) => setTimerTask(task)}
                     />
                   ))}
                 </div>
@@ -171,6 +173,17 @@ function HomePage() {
           </button>
         </div>
       </div>
+
+      {timerTask && (
+        <StudyTimerModal
+          task={timerTask}
+          onComplete={() => {
+            toggleDone(timerTask.id, false)
+            setTimerTask(null)
+          }}
+          onClose={() => setTimerTask(null)}
+        />
+      )}
 
       {showSelector && (
         <GoalSelectorModal
