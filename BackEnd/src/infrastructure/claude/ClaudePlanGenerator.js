@@ -1,4 +1,6 @@
-import { anthropic } from './client.js'
+import Anthropic from '@anthropic-ai/sdk'
+
+const anthropic = new Anthropic({ apiKey: process.env.CLAUDE_API_KEY })
 
 export class ClaudePlanGenerator {
   async generate({ subject, examType, deadline, dailyHours, studyRange, currentLevel }) {
@@ -22,7 +24,7 @@ export class ClaudePlanGenerator {
 3. 마지막 3일은 전체 복습과 모의고사로 구성
 4. 현재 수준이 높을수록 심화 내용 비중을 높이세요
 
-## 출력 형식 (JSON 배열만, 설명 없이)
+## 출력 형식 (JSON 배열만, 마크다운 코드블록 없이 순수 JSON만)
 [
   {
     "date": "YYYY-MM-DD",
@@ -39,8 +41,8 @@ export class ClaudePlanGenerator {
       max_tokens: 4096,
       messages: [{ role: 'user', content: prompt }],
     })
-
     const text = message.content[0].text
+
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     if (!jsonMatch) throw new Error('AI 응답에서 계획을 파싱할 수 없습니다')
 
