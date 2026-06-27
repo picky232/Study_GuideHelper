@@ -8,27 +8,29 @@ export class ClaudePlanGenerator {
     const dday = Math.ceil((new Date(deadline) - new Date(today)) / (1000 * 60 * 60 * 24))
     const totalHours = dailyHours * dday
 
-    const prompt = `당신은 학습 설계 전문가입니다. 아래 정보를 바탕으로 일자별 학습 계획을 JSON으로 작성해주세요.
+    const prompt = `당신은 ${examType} 전문 학습 설계사입니다. 아래 정보를 바탕으로 실제 시험 출제 단원·주제 기반의 일자별 학습 계획을 JSON으로 작성해주세요.
 
-## 입력 정보
+## 학습자 정보
 - 과목: ${subject} (${examType})
 - 시작일: ${today}
 - 마감일: ${deadline} (D-${dday}, 총 ${dday}일)
 - 하루 공부시간: ${dailyHours}시간 (총 ${totalHours}시간)
-- 학습 범위: ${studyRange || '전체 범위'}
-- 현재 수준: ${currentLevel}%
+- 학습 범위: ${studyRange || '시험 전체 출제 범위'}
+- 현재 수준: ${currentLevel}% (0=완전 초급, 100=완전 숙달)
 
-## 규칙
-1. 각 날짜별로 태스크를 배분하세요 (하루 총 duration_min = ${dailyHours * 60}분)
-2. 망각곡선 복습: 학습 후 1일·3일·7일·14일째 복습 태스크 삽입 (is_review: true)
-3. 마지막 3일은 전체 복습과 모의고사로 구성
-4. 현재 수준이 높을수록 심화 내용 비중을 높이세요
+## 핵심 지시사항
+1. **실제 단원명 사용**: "${subject} ${examType}"의 실제 출제 단원·챕터·토픽을 당신의 지식으로 파악하여, "1단원 학습"처럼 모호한 제목 대신 "극한의 정의와 수렴·발산", "다항함수의 미분법" 처럼 구체적 단원명으로 태스크 제목 작성
+2. **난이도 순서**: 기초 개념 → 핵심 공식·이론 → 응용·문제풀이 → 심화 순으로 진도 배치. 현재 수준 ${currentLevel}%가 높을수록 기초 비중 줄이고 심화·실전 비중 높임
+3. **하루 배분**: 하루 총 duration_min 합계 = ${dailyHours * 60}분 준수
+4. **망각곡선 복습**: 새 단원 학습 후 1일·3일·7일 뒤 복습 태스크 삽입 (is_review: true, 제목에 "[복습]" 접두사)
+5. **마지막 ${Math.min(3, dday)}일**: 전체 단원 복습 + 기출/모의고사 실전풀이로 구성
+6. **학습 범위 우선**: 사용자가 특정 범위를 입력했다면 그 범위를 우선 커버
 
-## 출력 형식 (JSON 배열만, 마크다운 코드블록 없이 순수 JSON만)
+## 출력 형식 (순수 JSON 배열만, 마크다운·코드블록·설명 없이)
 [
   {
     "date": "YYYY-MM-DD",
-    "title": "태스크 제목",
+    "title": "구체적 단원명 포함 태스크 제목",
     "duration_min": 60,
     "is_review": false
   }
