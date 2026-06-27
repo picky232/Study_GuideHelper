@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import DonutChart from '../../presentation/components/home/DonutChart'
 import TaskCard from '../../presentation/components/home/TaskCard'
+import GoalSelectorModal from '../../presentation/components/home/GoalSelectorModal'
 import { useGoal } from '../../presentation/hooks/useGoal'
 import { useSchedule } from '../../presentation/hooks/useSchedule'
 import { mockCoachingMessages } from '../../data/mockData'
@@ -39,8 +41,9 @@ function getCoachingEmoji(done, total) {
 
 function HomePage() {
   const navigate = useNavigate()
-  const { goal, loading: goalLoading } = useGoal()
+  const { goal, goals, loading: goalLoading, selectGoal } = useGoal()
   const { schedules, loading: schedLoading, toggleDone } = useSchedule(getTodayDate())
+  const [showSelector, setShowSelector] = useState(false)
 
   const done = schedules.filter((s) => s.is_done).length
   const total = schedules.length
@@ -64,9 +67,19 @@ function HomePage() {
         <p className="text-xs text-purple-200">{getTodayLabel()}</p>
         <div className="mt-1 flex items-end justify-between">
           <div>
-            <h1 className="text-xl font-bold">{goal ? goal.subject : '학습 설계 도우미'}</h1>
+            <button
+              onClick={() => goals.length > 1 && setShowSelector(true)}
+              className="flex items-center gap-1.5 text-left"
+            >
+              <h1 className="text-xl font-bold">{goal ? goal.subject : '학습 설계 도우미'}</h1>
+              {goals.length > 1 && (
+                <svg className="h-4 w-4 text-purple-200 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                </svg>
+              )}
+            </button>
             <p className="mt-0.5 text-sm text-purple-200">
-              {goal ? '오늘도 화이팅!' : '목표를 설정하고 시작해보세요'}
+              {goal ? (goals.length > 1 ? `목표 ${goals.length}개 중 선택됨` : '오늘도 화이팅!') : '목표를 설정하고 시작해보세요'}
             </p>
           </div>
           {dday !== null && (
@@ -158,6 +171,15 @@ function HomePage() {
           </button>
         </div>
       </div>
+
+      {showSelector && (
+        <GoalSelectorModal
+          goals={goals}
+          selectedGoal={goal}
+          onSelect={selectGoal}
+          onClose={() => setShowSelector(false)}
+        />
+      )}
     </div>
   )
 }

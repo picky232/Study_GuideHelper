@@ -1,0 +1,67 @@
+function getDday(deadline) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Math.ceil((new Date(deadline) - today) / (1000 * 60 * 60 * 24))
+}
+
+function GoalSelectorModal({ goals, selectedGoal, onSelect, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      {/* 배경 딤 */}
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+
+      {/* 바텀시트 */}
+      <div className="relative w-full max-w-md rounded-t-3xl bg-white px-5 pb-8 pt-5 shadow-xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-base font-bold text-gray-800">학습 목표 선택</h2>
+          <button onClick={onClose} className="text-gray-400">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {goals.map((g) => {
+            const dday = getDday(g.deadline)
+            const isSelected = selectedGoal?.id === g.id
+            return (
+              <button
+                key={g.id}
+                onClick={() => { onSelect(g); onClose() }}
+                className={`flex items-center justify-between rounded-2xl border p-4 text-left transition ${
+                  isSelected
+                    ? 'border-purple-300 bg-purple-50'
+                    : 'border-gray-100 bg-white'
+                }`}
+              >
+                <div>
+                  <p className={`text-sm font-semibold ${isSelected ? 'text-purple-700' : 'text-gray-800'}`}>
+                    {g.subject}
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-400">{g.exam_type} · 하루 {g.daily_hours}시간</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                    dday > 0 ? 'bg-purple-100 text-purple-600' : 'bg-red-100 text-red-500'
+                  }`}>
+                    {dday > 0 ? `D-${dday}` : '마감'}
+                  </span>
+                  {isSelected && (
+                    <div className="h-5 w-5 flex items-center justify-center rounded-full bg-purple-600">
+                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default GoalSelectorModal
