@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import GoalNewPage from './pages/GoalNewPage'
+import GoalGeneratePage from './pages/GoalGeneratePage'
 import CalendarPage from './pages/CalendarPage'
 import FeedbackPage from './pages/FeedbackPage'
 import SettingsPage from './pages/SettingsPage'
@@ -26,6 +27,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <GoalNewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/goal/generate"
+        element={
+          <ProtectedRoute>
+            <GoalGeneratePage />
           </ProtectedRoute>
         }
       />
