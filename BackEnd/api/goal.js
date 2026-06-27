@@ -19,9 +19,9 @@ export default async function handler(req, res) {
     const userId = await getUserIdFromToken(req)
 
     if (req.method === 'POST') {
-      const { subject, examType, deadline, dailyHours, studyRange, currentLevel } = req.body
+      const { subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints } = req.body
       const createGoal = new CreateGoal(new SupabaseGoalRepository())
-      const goal = await createGoal.execute({ userId, subject, examType, deadline, dailyHours, studyRange, currentLevel })
+      const goal = await createGoal.execute({ userId, subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints })
       return res.status(201).json({ goal })
     }
 
