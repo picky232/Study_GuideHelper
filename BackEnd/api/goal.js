@@ -36,6 +36,18 @@ export default async function handler(req, res) {
       return res.status(200).json({ goals: data })
     }
 
+    if (req.method === 'DELETE') {
+      const { id } = req.query
+      if (!id) throw new Error('목표 ID가 없습니다')
+      const { error } = await supabase
+        .from('goals')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', userId)
+      if (error) throw new Error(error.message)
+      return res.status(200).json({ success: true })
+    }
+
     return res.status(405).json({ error: 'Method Not Allowed' })
   } catch (error) {
     const status = error.message.includes('토큰') ? 401 : 400

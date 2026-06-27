@@ -41,7 +41,7 @@ function getCoachingEmoji(done, total) {
 
 function HomePage() {
   const navigate = useNavigate()
-  const { goal, goals, loading: goalLoading, selectGoal } = useGoal()
+  const { goal, goals, loading: goalLoading, selectGoal, deleteGoal } = useGoal()
   const { schedules, loading: schedLoading, toggleDone } = useSchedule(getTodayDate())
   const [showSelector, setShowSelector] = useState(false)
 
@@ -178,6 +178,7 @@ function HomePage() {
           selectedGoal={goal}
           onSelect={selectGoal}
           onClose={() => setShowSelector(false)}
+          onDelete={deleteGoal}
         />
       )}
     </div>

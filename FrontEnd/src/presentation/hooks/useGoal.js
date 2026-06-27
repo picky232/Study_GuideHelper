@@ -29,5 +29,16 @@ export function useGoal() {
     localStorage.setItem('selectedGoalId', goal.id)
   }
 
-  return { goal: selectedGoal, goals, loading, selectGoal }
+  function deleteGoal(goalId) {
+    const remaining = goals.filter((g) => g.id !== goalId)
+    setGoals(remaining)
+    if (selectedGoal?.id === goalId) {
+      const next = remaining[0] || null
+      setSelectedGoal(next)
+      if (next) localStorage.setItem('selectedGoalId', next.id)
+      else localStorage.removeItem('selectedGoalId')
+    }
+  }
+
+  return { goal: selectedGoal, goals, loading, selectGoal, deleteGoal }
 }
