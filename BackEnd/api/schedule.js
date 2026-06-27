@@ -16,11 +16,25 @@ export default async function handler(req, res) {
   try {
     const userId = await getUserIdFromToken(req)
 
-    // 오늘 태스크 조회
     if (req.method === 'GET') {
-      const { date } = req.query
-      const targetDate = date || new Date().toISOString().split('T')[0]
+      const { date, from, to } = req.query
 
+      // 월별 범위 조회
+      if (from && to) {
+        const { data, error } = await supabase
+          .from('schedules')
+          .select('id, date, title, duration_min, is_done, is_review')
+          .eq('user_id', userId)
+          .gte('date', from)
+          .lte('date', to)
+          .order('date', { ascending: true })
+
+        if (error) throw new Error(error.message)
+        return res.status(200).json({ schedules: data })
+      }
+
+      // 단일 날짜 조회
+      const targetDate = date || new Date().toISOString().split('T')[0]
       const { data, error } = await supabase
         .from('schedules')
         .select('*')
