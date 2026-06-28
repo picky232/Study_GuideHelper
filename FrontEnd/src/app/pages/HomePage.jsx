@@ -7,6 +7,7 @@ import StudyTimerModal from '../../presentation/components/home/StudyTimerModal'
 import { useGoal } from '../../presentation/hooks/useGoal'
 import { useSchedule } from '../../presentation/hooks/useSchedule'
 import { mockCoachingMessages } from '../../data/mockData'
+import apiClient from '../../infrastructure/api/client'
 
 function getTodayLabel() {
   const days = ['일', '월', '화', '수', '목', '금', '토']
@@ -177,8 +178,20 @@ function HomePage() {
       {timerTask && (
         <StudyTimerModal
           task={timerTask}
-          onComplete={() => {
+          onComplete={async () => {
             toggleDone(timerTask.id, false)
+            if (!timerTask.is_review && timerTask.goal_id) {
+              try {
+                await apiClient.post('/review', {
+                  goalId: timerTask.goal_id,
+                  completedDate: getTodayDate(),
+                  title: timerTask.title,
+                  durationMin: timerTask.duration_min,
+                })
+              } catch (err) {
+                console.error('복습 태스크 생성 실패:', err)
+              }
+            }
             setTimerTask(null)
           }}
           onClose={() => setTimerTask(null)}
