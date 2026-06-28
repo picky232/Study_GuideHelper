@@ -226,7 +226,7 @@ function GoalNewPage() {
               </div>
               <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5">
                 <span className="text-xs text-gray-500 flex-shrink-0">직접 입력</span>
-                <button type="button" onClick={() => update('dailyHours', Math.max(0.5, (form.dailyHours || 1) - 0.5))} className="text-gray-400 text-lg font-bold">−</button>
+                <button type="button" onClick={() => update('dailyHours', Math.max(0.5, (form.dailyHours || 0) - 0.5))} className="text-gray-400 text-lg font-bold">−</button>
                 <input
                   type="number"
                   min="0.5"

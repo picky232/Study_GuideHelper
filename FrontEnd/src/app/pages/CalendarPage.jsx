@@ -165,23 +165,26 @@ function CalendarPage() {
         </div>
 
         {/* 이번 달 요약 */}
-        {!loading && (
-          <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-gray-600">{month}월 학습 현황</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: '총 태스크', value: Object.values(scheduleMap).flat().length },
-                { label: '완료', value: Object.values(scheduleMap).flat().filter((s) => s.is_done).length, color: 'text-purple-600' },
-                { label: '복습', value: Object.values(scheduleMap).flat().filter((s) => s.is_review).length, color: 'text-orange-500' },
-              ].map((item) => (
-                <div key={item.label} className="rounded-2xl bg-gray-50 p-3 text-center">
-                  <p className={`text-xl font-bold ${item.color || 'text-gray-800'}`}>{item.value}</p>
-                  <p className="text-xs text-gray-400">{item.label}</p>
-                </div>
-              ))}
+        {!loading && (() => {
+          const allSchedules = Object.values(scheduleMap).flat()
+          return (
+            <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
+              <p className="mb-3 text-sm font-semibold text-gray-600">{month}월 학습 현황</p>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: '총 태스크', value: allSchedules.length },
+                  { label: '완료', value: allSchedules.filter((s) => s.is_done).length, color: 'text-purple-600' },
+                  { label: '복습', value: allSchedules.filter((s) => s.is_review).length, color: 'text-orange-500' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl bg-gray-50 p-3 text-center">
+                    <p className={`text-xl font-bold ${item.color || 'text-gray-800'}`}>{item.value}</p>
+                    <p className="text-xs text-gray-400">{item.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </div>
 
       {/* 날짜 상세 모달 */}

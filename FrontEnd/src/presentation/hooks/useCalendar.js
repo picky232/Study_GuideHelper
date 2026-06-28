@@ -6,7 +6,7 @@ export function useCalendar(year, month) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function fetch() {
+    async function fetchSchedules() {
       setLoading(true)
       const from = `${year}-${String(month).padStart(2, '0')}-01`
       const lastDay = new Date(year, month, 0).getDate()
@@ -19,13 +19,14 @@ export function useCalendar(year, month) {
           map[s.date].push(s)
         }
         setScheduleMap(map)
-      } catch {
+      } catch (err) {
+        console.error('캘린더 일정 로드 실패:', err)
         setScheduleMap({})
       } finally {
         setLoading(false)
       }
     }
-    fetch()
+    fetchSchedules()
   }, [year, month])
 
   function updateDone(id, isDone) {
