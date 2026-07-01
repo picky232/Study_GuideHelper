@@ -5,28 +5,25 @@ export function useFeedback() {
   const [data, setData] = useState(null)
   const [coaching, setCoaching] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [coachingLoading, setCoachingLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    async function loadStats() {
+    async function loadAll() {
       try {
-        const res = await apiClient.get('/feedback')
-        setData(res.data)
-        setLoading(false)
-
-        // stats 완료 후 coaching 별도 요청
-        const coachRes = await apiClient.get('/feedback?coaching=true')
+        const [statsRes, coachRes] = await Promise.all([
+          apiClient.get('/feedback'),
+          apiClient.get('/feedback?coaching=true'),
+        ])
+        setData(statsRes.data)
         setCoaching(coachRes.data.coaching || null)
       } catch (err) {
         setError(err.response?.data?.error || err.message)
-        setLoading(false)
       } finally {
-        setCoachingLoading(false)
+        setLoading(false)
       }
     }
-    loadStats()
+    loadAll()
   }, [])
 
-  return { data, coaching, loading, coachingLoading, error }
+  return { data, coaching, loading, error }
 }

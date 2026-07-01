@@ -12,7 +12,7 @@ function RateBar({ rate }) {
 }
 
 function FeedbackPage() {
-  const { data, coaching, loading, coachingLoading, error } = useFeedback()
+  const { data, coaching, loading, error } = useFeedback()
 
   if (loading) {
     return (
@@ -69,25 +69,17 @@ function FeedbackPage() {
           </div>
         </div>
 
-        {/* AI 코칭 메시지 */}
+        {/* 오늘의 명언 */}
         <div className="rounded-3xl bg-gradient-to-br from-purple-50 to-violet-50 p-5 shadow-sm">
           <div className="mb-3 flex items-center gap-2">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100">
               <svg className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
               </svg>
             </div>
-            <p className="text-xs font-semibold text-purple-600">AI 코치</p>
+            <p className="text-xs font-semibold text-purple-600">오늘의 명언</p>
           </div>
-          {coachingLoading ? (
-            <div className="space-y-2">
-              <div className="h-3 w-full animate-pulse rounded bg-purple-100" />
-              <div className="h-3 w-4/5 animate-pulse rounded bg-purple-100" />
-              <div className="h-3 w-3/5 animate-pulse rounded bg-purple-100" />
-            </div>
-          ) : (
-            <p className="text-sm leading-relaxed text-gray-700">{coaching || '코칭 메시지를 불러오지 못했어요.'}</p>
-          )}
+          <p className="text-sm leading-relaxed text-gray-700 italic">{coaching || '명언을 불러오지 못했어요.'}</p>
         </div>
 
         {/* 일별 달성률 */}

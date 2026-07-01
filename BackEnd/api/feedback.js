@@ -85,30 +85,27 @@ export default async function handler(req, res) {
 
     const goal = goals?.[0]
 
-    const prompt = `당신은 학습 코치입니다. 학생의 이번 주 학습 데이터를 보고 짧고 따뜻한 피드백을 한국어로 작성해주세요.
+    const mood = achievementRate >= 80 ? '높은 성취감' : achievementRate >= 50 ? '꾸준한 노력' : '다시 시작하는 용기'
+    const prompt = `학습 중인 학생에게 어울리는 동기부여 명언 하나를 한국어로 생성해주세요.
 
-학습 데이터:
-- 목표 과목: ${goal?.subject || '미설정'}
-- 이번 주 달성률: ${achievementRate}%
-- 완료 태스크: ${done}/${total}개
-- 총 학습 시간: ${Math.round((doneMin / 60) * 10) / 10}시간 / 계획 ${Math.round((totalMin / 60) * 10) / 10}시간
-- 날짜별 달성률: ${dailyStats.map((d) => `${d.date.slice(5)}(${d.rate}%)`).join(', ')}
+상황: ${goal?.subject || '공부'} 학습 중, 이번 주 달성률 ${achievementRate}% (${mood}이 필요한 상황)
 
 요구사항:
-- 2~3문장으로 간결하게
-- 잘한 점 인정 + 개선 방향 제시
-- 숫자 언급 1개 이하
-- 응원 마무리`
+- 실존 인물의 명언이거나 AI가 창작한 명언 모두 가능
+- 형식: "명언 내용" — 출처(인물명 또는 '학습 격언')
+- 1~2문장 이내
+- 학습·성장·끈기·도전 주제
+- 다른 설명 없이 명언만 출력`
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 200,
+      max_tokens: 120,
       messages: [{ role: 'user', content: prompt }],
     })
 
     return res.status(200).json({
       ...statsPayload,
-      coaching: message.content[0]?.text || '',
+      coaching: message.content[0]?.text?.trim() || '',
     })
   } catch (error) {
     return res.status(500).json({ error: error.message })
