@@ -51,7 +51,7 @@ function NavBar() {
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-6 py-2 transition-colors ${
+              `flex flex-col items-center gap-0.5 px-6 py-2 transition-colors hover:text-purple-500 ${
                 isActive ? 'text-purple-600' : 'text-gray-400'
               }`
             }

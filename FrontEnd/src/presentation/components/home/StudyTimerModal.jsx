@@ -39,7 +39,7 @@ function StudyTimerModal({ task, onComplete, onClose }) {
       {/* 닫기 */}
       <button
         onClick={onClose}
-        className="absolute right-5 top-5 rounded-full p-2 text-gray-400 hover:text-white"
+        className="absolute right-5 top-5 rounded-full p-2 text-gray-400 transition hover:bg-white/10 hover:text-white"
       >
         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -93,7 +93,7 @@ function StudyTimerModal({ task, onComplete, onClose }) {
           <p className="mb-1 text-center text-sm text-gray-300">학습 완료! 정말 잘 했어요 🎉</p>
           <button
             onClick={handleComplete}
-            className="w-full rounded-2xl bg-purple-600 py-4 text-base font-bold text-white"
+            className="w-full rounded-2xl bg-purple-600 py-4 text-base font-bold text-white transition hover:bg-purple-700 active:scale-[0.98]"
           >
             완료 체크하기
           </button>
@@ -102,13 +102,13 @@ function StudyTimerModal({ task, onComplete, onClose }) {
         <div className="flex w-full max-w-xs flex-col gap-3">
           <button
             onClick={() => setRunning((r) => !r)}
-            className="w-full rounded-2xl bg-white/10 py-4 text-base font-semibold text-white backdrop-blur"
+            className="w-full rounded-2xl bg-white/10 py-4 text-base font-semibold text-white backdrop-blur transition hover:bg-white/20 active:scale-[0.98]"
           >
             {running ? '일시정지' : '계속하기'}
           </button>
           <button
             onClick={handleComplete}
-            className="w-full rounded-2xl border border-white/20 py-3.5 text-sm font-medium text-gray-300"
+            className="w-full rounded-2xl border border-white/20 py-3.5 text-sm font-medium text-gray-300 transition hover:border-white/40 hover:text-white active:scale-[0.98]"
           >
             일찍 완료하기
           </button>

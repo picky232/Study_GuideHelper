@@ -6,7 +6,7 @@ function TaskCard({ task, onStart }) {
       className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200 active:scale-[0.98] ${
         task.is_done
           ? 'border-purple-100 bg-purple-50 opacity-70'
-          : 'border-gray-100 bg-white shadow-sm'
+          : 'border-gray-100 bg-white shadow-sm hover:shadow-md hover:border-purple-100'
       }`}
     >
       {/* 체크/플레이 버튼 */}

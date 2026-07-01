@@ -59,7 +59,7 @@ function SettingsPage() {
               <button
                 onClick={() => handleToggle(true)}
                 disabled={loading}
-                className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
+                className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-purple-700 disabled:opacity-60"
               >
                 {loading ? '...' : '허용하기'}
               </button>
@@ -80,7 +80,7 @@ function SettingsPage() {
           </div>
           <button
             onClick={logout}
-            className="w-full rounded-xl border border-red-100 bg-red-50 py-2.5 text-sm font-semibold text-red-500"
+            className="w-full rounded-xl border border-red-100 bg-red-50 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 active:scale-[0.98]"
           >
             로그아웃
           </button>

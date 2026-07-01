@@ -36,7 +36,7 @@ function GoalSelectorModal({ goals, selectedGoal, onSelect, onClose, onDelete, o
       <div className="relative w-full max-w-md rounded-t-3xl bg-white px-5 pb-8 pt-5 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-bold text-gray-800">학습 목표 선택</h2>
-          <button onClick={onClose} className="text-gray-400">
+          <button onClick={onClose} className="rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -54,7 +54,7 @@ function GoalSelectorModal({ goals, selectedGoal, onSelect, onClose, onDelete, o
               <div
                 key={g.id}
                 className={`flex items-center gap-2 rounded-2xl border p-4 transition ${
-                  isSelected ? 'border-purple-300 bg-purple-50' : 'border-gray-100 bg-white'
+                  isSelected ? 'border-purple-300 bg-purple-50' : 'border-gray-100 bg-white hover:border-purple-200 hover:bg-purple-50/40'
                 }`}
               >
                 {/* 목표 선택 영역 */}
@@ -90,8 +90,8 @@ function GoalSelectorModal({ goals, selectedGoal, onSelect, onClose, onDelete, o
                   disabled={isDeleting}
                   className={`flex-shrink-0 rounded-xl px-2.5 py-1.5 text-xs font-medium transition ${
                     isConfirming
-                      ? 'bg-red-500 text-white'
-                      : 'bg-gray-100 text-gray-400'
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600'
                   }`}
                 >
                   {isDeleting ? '...' : isConfirming ? '확인' : '삭제'}

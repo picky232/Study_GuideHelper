@@ -102,13 +102,13 @@ function PreviewScreen({ tasks, goal, onConfirm, onRetry, loading }) {
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md disabled:opacity-60"
+            className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
           >
             {loading ? '저장 중...' : '이 계획으로 시작하기 🚀'}
           </button>
           <button
             onClick={onRetry}
-            className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-500"
+            className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-500 transition hover:bg-gray-200 active:scale-[0.98]"
           >
             다시 생성하기
           </button>
@@ -168,7 +168,7 @@ function GoalGeneratePage() {
         <p className="mt-2 text-sm text-red-500">{error}</p>
         <button
           onClick={generatePlan}
-          className="mt-6 rounded-xl bg-purple-600 px-8 py-3 text-sm font-semibold text-white"
+          className="mt-6 rounded-xl bg-purple-600 px-8 py-3 text-sm font-semibold text-white transition hover:bg-purple-700 active:scale-[0.98]"
         >
           다시 시도
         </button>
