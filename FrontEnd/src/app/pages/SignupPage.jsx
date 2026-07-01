@@ -38,8 +38,8 @@ function SignupPage() {
       navigate('/')
     } catch (err) {
       const msg = err.response?.data?.error || err.message || ''
-      if (msg.toLowerCase().includes('confirm') || msg.toLowerCase().includes('verified') || msg.includes('인증')) {
-        setVerifyError('아직 이메일 인증이 완료되지 않았어요. 메일함을 다시 확인해주세요.')
+      if (msg.includes('인증이 완료되지 않았습니다') || msg.toLowerCase().includes('confirm') || msg.toLowerCase().includes('email')) {
+        setVerifyError('아직 이메일 인증이 완료되지 않았어요. 메일함의 링크를 먼저 클릭해주세요.')
       } else {
         setVerifyError(msg || '인증 확인 중 오류가 발생했어요.')
       }

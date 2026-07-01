@@ -27,6 +27,9 @@ export class SupabaseAuthRepository extends IAuthRepository {
       password,
     })
     if (error) throw new Error(error.message)
+    if (!data.user.email_confirmed_at) {
+      throw new Error('이메일 인증이 완료되지 않았습니다. 메일함을 확인해주세요.')
+    }
 
     return {
       accessToken: data.session.access_token,
