@@ -71,11 +71,11 @@ function HomePage() {
         <div className="mt-1 flex items-end justify-between">
           <div>
             <button
-              onClick={() => goals.length > 1 && setShowSelector(true)}
+              onClick={() => goal && setShowSelector(true)}
               className="flex items-center gap-1.5 text-left"
             >
               <h1 className="text-xl font-bold">{goal ? goal.subject : '학습 설계 도우미'}</h1>
-              {goals.length > 1 && (
+              {goal && (
                 <svg className="h-4 w-4 text-purple-200 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
                 </svg>

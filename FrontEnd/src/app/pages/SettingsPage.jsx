@@ -6,9 +6,9 @@ function Toggle({ on, onChange, disabled }) {
     <button
       onClick={() => !disabled && onChange(!on)}
       disabled={disabled}
-      className={`relative h-6 w-11 rounded-full transition-colors duration-200 disabled:opacity-50 ${on ? 'bg-purple-600' : 'bg-gray-200'}`}
+      className={`flex h-6 w-11 flex-shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 disabled:opacity-50 ${on ? 'bg-purple-600' : 'bg-gray-200'}`}
     >
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      <span className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${on ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
   )
 }
