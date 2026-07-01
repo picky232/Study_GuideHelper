@@ -1,16 +1,13 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../presentation/hooks/AuthContext'
 
 function SignupPage() {
-  const { signUp, login } = useAuth()
+  const { signUp } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '', name: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
-  const [verifyLoading, setVerifyLoading] = useState(false)
-  const [verifyError, setVerifyError] = useState('')
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -22,79 +19,12 @@ function SignupPage() {
     setLoading(true)
     try {
       await signUp(form)
-      setEmailSent(true)
+      navigate('/login')
     } catch (err) {
       setError(err.response?.data?.error || err.message)
     } finally {
       setLoading(false)
     }
-  }
-
-  async function handleVerify() {
-    setVerifyError('')
-    setVerifyLoading(true)
-    try {
-      await login({ email: form.email, password: form.password })
-      navigate('/')
-    } catch (err) {
-      const msg = err.response?.data?.error || err.message || ''
-      if (msg.includes('인증이 완료되지 않았습니다') || msg.toLowerCase().includes('confirm') || msg.toLowerCase().includes('email')) {
-        setVerifyError('아직 이메일 인증이 완료되지 않았어요. 메일함의 링크를 먼저 클릭해주세요.')
-      } else {
-        setVerifyError(msg || '인증 확인 중 오류가 발생했어요.')
-      }
-    } finally {
-      setVerifyLoading(false)
-    }
-  }
-
-  if (emailSent) {
-    return (
-      <div className="flex min-h-screen flex-col bg-gray-50">
-        <div className="bg-gradient-to-br from-purple-600 to-violet-700 px-6 pb-12 pt-16 text-center text-white">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-8 w-8 text-white">
-              <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
-              <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold">이메일을 확인해주세요</h1>
-          <p className="mt-1 text-sm text-purple-200">인증 메일이 발송되었습니다</p>
-        </div>
-        <div className="mx-auto w-full max-w-sm flex-1 px-5 -mt-6">
-          <div className="rounded-3xl bg-white p-6 shadow-lg text-center">
-            <p className="text-sm text-gray-600 leading-relaxed">
-              <span className="font-semibold text-purple-600">{form.email}</span>으로<br />
-              인증 링크를 보냈어요.
-            </p>
-            <p className="mt-3 text-xs text-gray-400">
-              메일함에서 링크를 클릭한 후<br />아래 버튼을 눌러주세요.
-            </p>
-            <p className="mt-1 text-xs text-gray-300">스팸함도 확인해보세요.</p>
-
-            {verifyError && (
-              <div className="mt-4 rounded-xl bg-red-50 px-4 py-3">
-                <p className="text-xs text-red-500">{verifyError}</p>
-              </div>
-            )}
-
-            <button
-              onClick={handleVerify}
-              disabled={verifyLoading}
-              className="mt-5 w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 disabled:opacity-60"
-            >
-              {verifyLoading ? '확인 중...' : '인증 완료했어요'}
-            </button>
-            <Link
-              to="/login"
-              className="mt-3 block text-xs text-gray-400 hover:text-purple-600 transition"
-            >
-              로그인 페이지로 이동
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   return (

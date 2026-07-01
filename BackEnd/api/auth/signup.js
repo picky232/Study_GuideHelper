@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const { email, password, name } = req.body
     const signUp = new SignUp(new SupabaseAuthRepository())
     const user = await signUp.execute({ email, password, name })
-    return res.status(201).json({ user, message: '이메일을 확인하여 인증을 완료해주세요' })
+    return res.status(201).json({ user })
   } catch (error) {
     return res.status(400).json({ error: error.message })
   }
