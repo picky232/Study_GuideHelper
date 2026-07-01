@@ -1,23 +1,26 @@
 import { useState, useEffect, useCallback } from 'react'
 import apiClient from '../../infrastructure/api/client'
 
-export function useSchedule(date) {
+export function useSchedule(date, goalId, enabled = true) {
   const [schedules, setSchedules] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
   const fetchSchedules = useCallback(async () => {
+    if (!enabled) return
     setLoading(true)
     setError(null)
     try {
-      const { data } = await apiClient.get('/schedule', { params: { date } })
+      const params = { date }
+      if (goalId) params.goalId = goalId
+      const { data } = await apiClient.get('/schedule', { params })
       setSchedules(data.schedules)
     } catch (err) {
       setError(err.response?.data?.error || err.message)
     } finally {
       setLoading(false)
     }
-  }, [date])
+  }, [date, goalId, enabled])
 
   useEffect(() => { fetchSchedules() }, [fetchSchedules])
 
