@@ -60,6 +60,21 @@ export default async function handler(req, res) {
       total: stat.total,
     }))
 
+    const statsPayload = {
+      achievementRate,
+      done,
+      total,
+      doneMin,
+      totalMin,
+      dailyStats,
+      period: { start: startDate, end: endDate },
+    }
+
+    // coaching=true 쿼리 파라미터 있을 때만 AI 호출
+    if (req.query.coaching !== 'true') {
+      return res.status(200).json(statsPayload)
+    }
+
     // 목표 정보
     const { data: goals } = await supabase
       .from('goals')
@@ -70,14 +85,13 @@ export default async function handler(req, res) {
 
     const goal = goals?.[0]
 
-    // Claude 코칭 메시지 생성
     const prompt = `당신은 학습 코치입니다. 학생의 이번 주 학습 데이터를 보고 짧고 따뜻한 피드백을 한국어로 작성해주세요.
 
 학습 데이터:
 - 목표 과목: ${goal?.subject || '미설정'}
 - 이번 주 달성률: ${achievementRate}%
 - 완료 태스크: ${done}/${total}개
-- 총 학습 시간: ${Math.round(doneMin / 60 * 10) / 10}시간 / 계획 ${Math.round(totalMin / 60 * 10) / 10}시간
+- 총 학습 시간: ${Math.round((doneMin / 60) * 10) / 10}시간 / 계획 ${Math.round((totalMin / 60) * 10) / 10}시간
 - 날짜별 달성률: ${dailyStats.map((d) => `${d.date.slice(5)}(${d.rate}%)`).join(', ')}
 
 요구사항:
@@ -92,17 +106,9 @@ export default async function handler(req, res) {
       messages: [{ role: 'user', content: prompt }],
     })
 
-    const coaching = message.content[0]?.text || ''
-
     return res.status(200).json({
-      achievementRate,
-      done,
-      total,
-      doneMin,
-      totalMin,
-      dailyStats,
-      coaching,
-      period: { start: startDate, end: endDate },
+      ...statsPayload,
+      coaching: message.content[0]?.text || '',
     })
   } catch (error) {
     return res.status(500).json({ error: error.message })

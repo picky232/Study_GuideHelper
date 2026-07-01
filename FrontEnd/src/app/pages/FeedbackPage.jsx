@@ -12,7 +12,7 @@ function RateBar({ rate }) {
 }
 
 function FeedbackPage() {
-  const { data, loading, error } = useFeedback()
+  const { data, coaching, loading, coachingLoading, error } = useFeedback()
 
   if (loading) {
     return (
@@ -30,7 +30,7 @@ function FeedbackPage() {
     )
   }
 
-  const { achievementRate, done, total, doneMin, totalMin, dailyStats, coaching, period } = data
+  const { achievementRate, done, total, doneMin, totalMin, dailyStats, period } = data
 
   const doneHours = Math.round((doneMin / 60) * 10) / 10
   const totalHours = Math.round((totalMin / 60) * 10) / 10
@@ -70,19 +70,25 @@ function FeedbackPage() {
         </div>
 
         {/* AI 코칭 메시지 */}
-        {coaching && (
-          <div className="rounded-3xl bg-gradient-to-br from-purple-50 to-violet-50 p-5 shadow-sm">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100">
-                <svg className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                </svg>
-              </div>
-              <p className="text-xs font-semibold text-purple-600">AI 코치</p>
+        <div className="rounded-3xl bg-gradient-to-br from-purple-50 to-violet-50 p-5 shadow-sm">
+          <div className="mb-3 flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100">
+              <svg className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
             </div>
-            <p className="text-sm leading-relaxed text-gray-700">{coaching}</p>
+            <p className="text-xs font-semibold text-purple-600">AI 코치</p>
           </div>
-        )}
+          {coachingLoading ? (
+            <div className="space-y-2">
+              <div className="h-3 w-full animate-pulse rounded bg-purple-100" />
+              <div className="h-3 w-4/5 animate-pulse rounded bg-purple-100" />
+              <div className="h-3 w-3/5 animate-pulse rounded bg-purple-100" />
+            </div>
+          ) : (
+            <p className="text-sm leading-relaxed text-gray-700">{coaching || '코칭 메시지를 불러오지 못했어요.'}</p>
+          )}
+        </div>
 
         {/* 일별 달성률 */}
         {dailyStats.length > 0 && (

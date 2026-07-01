@@ -7,7 +7,7 @@ function getDday(deadline) {
   return Math.ceil((new Date(deadline) - today) / (1000 * 60 * 60 * 24))
 }
 
-function GoalSelectorModal({ goals, selectedGoal, onSelect, onClose, onDelete }) {
+function GoalSelectorModal({ goals, selectedGoal, onSelect, onClose, onDelete, onAdd }) {
   const [deletingId, setDeletingId] = useState(null)
   const [confirmId, setConfirmId] = useState(null)
 
@@ -106,6 +106,16 @@ function GoalSelectorModal({ goals, selectedGoal, onSelect, onClose, onDelete })
             삭제 시 관련 일정도 모두 삭제됩니다. 한 번 더 누르면 삭제됩니다.
           </p>
         )}
+
+        <button
+          onClick={() => { onClose(); onAdd() }}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 py-3.5 text-sm font-medium text-purple-400 transition hover:border-purple-400 hover:text-purple-600"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          새 학습 목표 추가
+        </button>
       </div>
     </div>
   )

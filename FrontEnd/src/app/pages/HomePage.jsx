@@ -157,15 +157,6 @@ function HomePage() {
             </>
           )}
 
-          <button
-            onClick={() => navigate('/goal/new')}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-purple-200 py-4 text-sm font-medium text-purple-400 transition hover:border-purple-400 hover:text-purple-600"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            {goal ? '새 학습 목표 추가' : '목표 설정하기'}
-          </button>
         </div>
       </div>
 
@@ -199,6 +190,7 @@ function HomePage() {
           onSelect={selectGoal}
           onClose={() => setShowSelector(false)}
           onDelete={deleteGoal}
+          onAdd={() => navigate('/goal/new')}
         />
       )}
     </div>

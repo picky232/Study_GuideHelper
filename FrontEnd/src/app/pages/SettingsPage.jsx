@@ -1,15 +1,32 @@
 import { useFcm } from '../../presentation/hooks/useFcm'
 import { useAuth } from '../../presentation/hooks/AuthContext'
 
+function Toggle({ on, onChange, disabled }) {
+  return (
+    <button
+      onClick={() => !disabled && onChange(!on)}
+      disabled={disabled}
+      className={`relative h-6 w-11 rounded-full transition-colors duration-200 disabled:opacity-50 ${on ? 'bg-purple-600' : 'bg-gray-200'}`}
+    >
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${on ? 'translate-x-5' : 'translate-x-0.5'}`} />
+    </button>
+  )
+}
+
 function SettingsPage() {
-  const { permission, loading, error, requestPermission } = useFcm()
+  const { permission, enabled, loading, error, requestPermission, disableNotification } = useFcm()
   const { user, logout } = useAuth()
 
-  const permissionLabel = {
-    granted: '알림 허용됨',
-    denied: '알림 차단됨 (브라우저 설정에서 변경)',
-    default: '알림 미설정',
-  }[permission] || '알림 미설정'
+  async function handleToggle(turnOn) {
+    if (turnOn) {
+      await requestPermission()
+    } else {
+      await disableNotification()
+    }
+  }
+
+  const isGranted = permission === 'granted'
+  const isDenied = permission === 'denied'
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -23,36 +40,35 @@ function SettingsPage() {
         {/* 푸시 알림 */}
         <div className="rounded-3xl bg-white p-5 shadow-sm">
           <h2 className="mb-1 text-sm font-bold text-gray-700">푸시 알림</h2>
-          <p className="mb-4 text-xs text-gray-400">오늘 미완료 학습이 있을 때 알림을 받아요</p>
+          <p className="mb-4 text-xs text-gray-400">미완료 학습이 있을 때 알림을 받아요</p>
 
           <div className="flex items-center justify-between rounded-2xl bg-gray-50 px-4 py-3">
             <div>
               <p className="text-sm font-medium text-gray-700">학습 리마인더</p>
-              <p className={`mt-0.5 text-xs ${permission === 'granted' ? 'text-purple-500' : permission === 'denied' ? 'text-red-400' : 'text-gray-400'}`}>
-                {permissionLabel}
+              <p className={`mt-0.5 text-xs ${isGranted && enabled ? 'text-purple-500' : isDenied ? 'text-red-400' : 'text-gray-400'}`}>
+                {isDenied
+                  ? '브라우저 설정에서 차단됨'
+                  : !isGranted
+                  ? '허용 안 됨'
+                  : enabled ? '알림 켜짐' : '알림 꺼짐'}
               </p>
             </div>
-            {permission !== 'granted' && permission !== 'denied' && (
+            {isDenied ? (
+              <span className="text-xs text-red-400">브라우저에서 해제</span>
+            ) : !isGranted ? (
               <button
-                onClick={requestPermission}
+                onClick={() => handleToggle(true)}
                 disabled={loading}
                 className="rounded-xl bg-purple-600 px-4 py-2 text-xs font-semibold text-white disabled:opacity-60"
               >
-                {loading ? '처리 중...' : '허용하기'}
+                {loading ? '...' : '허용하기'}
               </button>
-            )}
-            {permission === 'granted' && (
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100">
-                <svg className="h-3.5 w-3.5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
+            ) : (
+              <Toggle on={enabled} onChange={handleToggle} disabled={loading} />
             )}
           </div>
 
-          {error && (
-            <p className="mt-2 text-xs text-red-500">{error}</p>
-          )}
+          {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
         </div>
 
         {/* 계정 */}
