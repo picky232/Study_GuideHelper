@@ -5,6 +5,7 @@ import apiClient from '../../infrastructure/api/client'
 const EXAM_TYPES = ['자격증', '수능', '내신', '공무원', '어학', '기타']
 const EXAM_FORMATS = ['필기', '실기', '필기+실기']
 const DAILY_HOURS = [1, 2, 3, 4, 5, 6]
+const EXAM_FORMAT_TYPES = ['자격증', '공무원', '기타']
 
 function getDday(deadline) {
   if (!deadline) return null
@@ -108,7 +109,7 @@ function GoalNewPage() {
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* 헤더 */}
       <div className="bg-gradient-to-br from-purple-600 to-violet-700 px-5 pb-6 pt-8 text-white">
-        <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="mb-3 flex items-center gap-1 text-sm text-purple-200">
+        <button onClick={() => step > 1 ? setStep(s => s - 1) : navigate(-1)} className="mb-3 flex items-center gap-1 text-sm text-purple-200 transition hover:text-white">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -144,11 +145,15 @@ function GoalNewPage() {
                   <button
                     key={type}
                     type="button"
-                    onClick={() => update('examType', type)}
+                    onClick={() => {
+                      update('examType', type)
+                      if (!EXAM_FORMAT_TYPES.includes(type)) update('examFormat', null)
+                      else update('examFormat', '필기')
+                    }}
                     className={`rounded-xl py-2.5 text-sm font-medium transition ${
                       form.examType === type
                         ? 'bg-purple-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
                     {type}
@@ -157,25 +162,27 @@ function GoalNewPage() {
               </div>
             </div>
 
-            <div>
-              <label className="mb-2 block text-xs font-semibold text-gray-500">시험 유형</label>
-              <div className="grid grid-cols-3 gap-2">
-                {EXAM_FORMATS.map((fmt) => (
-                  <button
-                    key={fmt}
-                    type="button"
-                    onClick={() => update('examFormat', fmt)}
-                    className={`rounded-xl py-2.5 text-sm font-medium transition ${
-                      form.examFormat === fmt
-                        ? 'bg-violet-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-600'
-                    }`}
-                  >
-                    {fmt}
-                  </button>
-                ))}
+            {EXAM_FORMAT_TYPES.includes(form.examType) && (
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-gray-500">시험 유형</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {EXAM_FORMATS.map((fmt) => (
+                    <button
+                      key={fmt}
+                      type="button"
+                      onClick={() => update('examFormat', fmt)}
+                      className={`rounded-xl py-2.5 text-sm font-medium transition ${
+                        form.examFormat === fmt
+                          ? 'bg-violet-600 text-white shadow-sm'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {fmt}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -201,7 +208,7 @@ function GoalNewPage() {
 
             <div>
               <label className="mb-2 block text-xs font-semibold text-gray-500">하루 공부시간</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 mb-3">
                 {DAILY_HOURS.map((h) => (
                   <button
                     key={h}
@@ -210,12 +217,30 @@ function GoalNewPage() {
                     className={`rounded-xl py-2.5 text-sm font-medium transition ${
                       form.dailyHours === h
                         ? 'bg-purple-600 text-white shadow-sm'
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
                     {h}시간
                   </button>
                 ))}
+              </div>
+              <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5">
+                <span className="text-xs text-gray-500 flex-shrink-0">직접 입력</span>
+                <button type="button" onClick={() => update('dailyHours', Math.max(0.5, (form.dailyHours || 0) - 0.5))} className="rounded-lg px-1 text-gray-400 text-lg font-bold transition hover:bg-gray-200 hover:text-gray-600">−</button>
+                <input
+                  type="number"
+                  min="0.5"
+                  max="24"
+                  step="0.5"
+                  value={form.dailyHours || ''}
+                  onChange={(e) => {
+                    const v = parseFloat(e.target.value)
+                    if (!isNaN(v) && v > 0 && v <= 24) update('dailyHours', v)
+                  }}
+                  className="flex-1 text-center text-sm font-semibold text-gray-800 bg-transparent outline-none"
+                />
+                <span className="text-xs text-gray-500">시간</span>
+                <button type="button" onClick={() => update('dailyHours', Math.min(24, (form.dailyHours || 0) + 0.5))} className="rounded-lg px-1 text-gray-400 text-lg font-bold transition hover:bg-gray-200 hover:text-gray-600">+</button>
               </div>
               {form.dailyHours && dday > 0 && (
                 <p className="mt-2 text-xs text-gray-400">
@@ -284,7 +309,7 @@ function GoalNewPage() {
           {step < 3 ? (
             <button
               onClick={handleNext}
-              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition active:scale-[0.98]"
+              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
             >
               다음 단계
             </button>
@@ -292,7 +317,7 @@ function GoalNewPage() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition active:scale-[0.98] disabled:opacity-60"
+              className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
             >
               {loading ? 'AI 계획 생성 중...' : 'AI로 계획 생성하기 ✨'}
             </button>

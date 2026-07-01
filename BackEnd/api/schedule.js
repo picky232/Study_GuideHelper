@@ -34,14 +34,19 @@ export default async function handler(req, res) {
       }
 
       // 단일 날짜 조회
+      const { goalId } = req.query
       const targetDate = date || new Date().toISOString().split('T')[0]
-      const { data, error } = await supabase
+      let query = supabase
         .from('schedules')
         .select('*')
         .eq('user_id', userId)
         .eq('date', targetDate)
         .order('is_review', { ascending: true })
         .order('created_at', { ascending: true })
+
+      if (goalId) query = query.eq('goal_id', goalId)
+
+      const { data, error } = await query
 
       if (error) throw new Error(error.message)
       return res.status(200).json({ schedules: data })

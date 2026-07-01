@@ -21,7 +21,8 @@ function LoginPage() {
       await login(form)
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.error || err.message)
+      setForm((prev) => ({ ...prev, password: '' }))
+      setError(err.response?.data?.error || '비밀번호가 올바르지 않습니다')
     } finally {
       setLoading(false)
     }
@@ -58,28 +59,30 @@ function LoginPage() {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-gray-500">비밀번호</label>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="text-xs font-semibold text-gray-500">비밀번호</label>
+                <Link to="/forgot-password" className="text-xs text-purple-500 transition hover:text-purple-700 hover:underline">
+                  비밀번호 찾기
+                </Link>
+              </div>
               <input
                 name="password"
                 type="password"
                 placeholder="비밀번호 입력"
                 value={form.password}
                 onChange={handleChange}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-purple-400 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                className={`w-full rounded-xl border bg-gray-50 px-4 py-3 text-sm outline-none transition focus:bg-white focus:ring-2 ${error ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-purple-400 focus:ring-purple-100'}`}
                 required
               />
+              {error && (
+                <p className="mt-1.5 text-xs text-red-500">{error}</p>
+              )}
             </div>
-
-            {error && (
-              <div className="rounded-xl bg-red-50 px-4 py-3">
-                <p className="text-xs text-red-500">{error}</p>
-              </div>
-            )}
 
             <button
               type="submit"
               disabled={loading}
-              className="mt-1 w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition active:scale-[0.98] disabled:opacity-60"
+              className="mt-1 w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
             >
               {loading ? '로그인 중...' : '로그인'}
             </button>
@@ -87,7 +90,7 @@ function LoginPage() {
 
           <p className="mt-5 text-center text-sm text-gray-400">
             계정이 없으신가요?{' '}
-            <Link to="/signup" className="font-semibold text-purple-600">
+            <Link to="/signup" className="font-semibold text-purple-600 transition hover:text-purple-800 hover:underline">
               회원가입
             </Link>
           </p>

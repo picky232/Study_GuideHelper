@@ -17,7 +17,7 @@ function DayDetailModal({ date, schedules, onClose, onToggle }) {
             <h2 className="text-base font-bold text-gray-800">{label}</h2>
             <p className="text-xs text-gray-400">{done}/{schedules.length} 완료</p>
           </div>
-          <button onClick={onClose} className="text-gray-400">
+          <button onClick={onClose} className="rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -33,7 +33,7 @@ function DayDetailModal({ date, schedules, onClose, onToggle }) {
                 key={s.id}
                 onClick={() => onToggle(s)}
                 className={`flex items-center gap-3 rounded-2xl border p-3.5 text-left transition ${
-                  s.is_done ? 'border-purple-100 bg-purple-50' : 'border-gray-100 bg-white'
+                  s.is_done ? 'border-purple-100 bg-purple-50 hover:bg-purple-100' : 'border-gray-100 bg-white hover:bg-gray-50 hover:border-gray-200'
                 }`}
               >
                 <div className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border-2 ${
@@ -165,23 +165,26 @@ function CalendarPage() {
         </div>
 
         {/* 이번 달 요약 */}
-        {!loading && (
-          <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-gray-600">{month}월 학습 현황</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { label: '총 태스크', value: Object.values(scheduleMap).flat().length },
-                { label: '완료', value: Object.values(scheduleMap).flat().filter((s) => s.is_done).length, color: 'text-purple-600' },
-                { label: '복습', value: Object.values(scheduleMap).flat().filter((s) => s.is_review).length, color: 'text-orange-500' },
-              ].map((item) => (
-                <div key={item.label} className="rounded-2xl bg-gray-50 p-3 text-center">
-                  <p className={`text-xl font-bold ${item.color || 'text-gray-800'}`}>{item.value}</p>
-                  <p className="text-xs text-gray-400">{item.label}</p>
-                </div>
-              ))}
+        {!loading && (() => {
+          const allSchedules = Object.values(scheduleMap).flat()
+          return (
+            <div className="mt-4 rounded-3xl bg-white p-5 shadow-sm">
+              <p className="mb-3 text-sm font-semibold text-gray-600">{month}월 학습 현황</p>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: '총 태스크', value: allSchedules.length },
+                  { label: '완료', value: allSchedules.filter((s) => s.is_done).length, color: 'text-purple-600' },
+                  { label: '복습', value: allSchedules.filter((s) => s.is_review).length, color: 'text-orange-500' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl bg-gray-50 p-3 text-center">
+                    <p className={`text-xl font-bold ${item.color || 'text-gray-800'}`}>{item.value}</p>
+                    <p className="text-xs text-gray-400">{item.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </div>
 
       {/* 날짜 상세 모달 */}

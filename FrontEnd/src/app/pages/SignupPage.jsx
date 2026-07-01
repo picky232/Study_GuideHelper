@@ -91,7 +91,7 @@ function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-1 w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition active:scale-[0.98] disabled:opacity-60"
+              className="mt-1 w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-[0.98] disabled:opacity-60"
             >
               {loading ? '가입 중...' : '시작하기'}
             </button>
@@ -99,7 +99,7 @@ function SignupPage() {
 
           <p className="mt-5 text-center text-sm text-gray-400">
             이미 계정이 있으신가요?{' '}
-            <Link to="/login" className="font-semibold text-purple-600">
+            <Link to="/login" className="font-semibold text-purple-600 transition hover:text-purple-800 hover:underline">
               로그인
             </Link>
           </p>
