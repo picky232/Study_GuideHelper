@@ -19,20 +19,26 @@ export default async function handler(req, res) {
     if (error) throw new Error(error.message)
     if (!tokens || tokens.length === 0) return res.status(200).json({ sent: 0 })
 
+    const userIds = tokens.map((t) => t.user_id)
+    const { data: incompleteRows } = await supabase
+      .from('schedules')
+      .select('user_id')
+      .in('user_id', userIds)
+      .eq('date', today)
+      .eq('is_done', false)
+
+    const countByUser = {}
+    for (const row of incompleteRows || []) {
+      countByUser[row.user_id] = (countByUser[row.user_id] || 0) + 1
+    }
+
     const messaging = getMessagingClient()
     let sent = 0
     const failed = []
 
     for (const { token, user_id } of tokens) {
-      // 해당 사용자 오늘 미완료 태스크 수 확인
-      const { count } = await supabase
-        .from('schedules')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user_id)
-        .eq('date', today)
-        .eq('is_done', false)
-
-      if (!count || count === 0) continue
+      const count = countByUser[user_id] || 0
+      if (count === 0) continue
 
       try {
         await messaging.send({
