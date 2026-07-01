@@ -110,7 +110,7 @@ vercel dev
 - [x] 6/30 — 캘린더 뷰 구현 (F3)
 - [x] 7/1 — 복습 사이클 구현 (F6) + AI 학습 피드백 (F5) + FCM 푸시 알림 클라이언트 세팅 (F4)
 - [x] 7/2 — Vercel Cron 알림 자동화 (F4) + PWA 설정 (vite-plugin-pwa)
-- [ ] 7/3 — 통합 테스트 + 버그 수정
+- [x] 7/3 — 통합 테스트 + DDD 정리 (CalendarPage, useFeedback API 최적화)
 - [ ] 7/4 — 최종 테스트 + 배포 마무리
 
 상세 체크리스트는 `plan.md` 참고.

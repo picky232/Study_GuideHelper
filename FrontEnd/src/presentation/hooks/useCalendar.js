@@ -29,6 +29,16 @@ export function useCalendar(year, month) {
     fetchSchedules()
   }, [year, month])
 
+  async function toggleDone(task) {
+    const newDone = !task.is_done
+    updateDone(task.id, newDone)
+    try {
+      await apiClient.patch('/schedule', { id: task.id, is_done: newDone })
+    } catch {
+      updateDone(task.id, task.is_done)
+    }
+  }
+
   function updateDone(id, isDone) {
     setScheduleMap((prev) => {
       const next = { ...prev }
@@ -39,5 +49,5 @@ export function useCalendar(year, month) {
     })
   }
 
-  return { scheduleMap, loading, updateDone }
+  return { scheduleMap, loading, updateDone, toggleDone }
 }

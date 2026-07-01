@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
-import apiClient from '../../infrastructure/api/client'
 import { useCalendar } from '../../presentation/hooks/useCalendar'
 
 function DayDetailModal({ date, schedules, onClose, onToggle }) {
@@ -70,20 +69,10 @@ function CalendarPage() {
 
   const year = activeDate.getFullYear()
   const month = activeDate.getMonth() + 1
-  const { scheduleMap, loading, updateDone } = useCalendar(year, month)
+  const { scheduleMap, loading, toggleDone } = useCalendar(year, month)
 
   function toKey(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-  }
-
-  async function handleToggle(task) {
-    const newDone = !task.is_done
-    updateDone(task.id, newDone)
-    try {
-      await apiClient.patch('/schedule', { id: task.id, is_done: newDone })
-    } catch {
-      updateDone(task.id, task.is_done)
-    }
   }
 
   function tileContent({ date, view }) {
@@ -193,7 +182,7 @@ function CalendarPage() {
           date={selectedDate}
           schedules={selectedSchedules}
           onClose={() => setSelectedDate(null)}
-          onToggle={handleToggle}
+          onToggle={toggleDone}
         />
       )}
 

@@ -10,12 +10,9 @@ export function useFeedback() {
   useEffect(() => {
     async function loadAll() {
       try {
-        const [statsRes, coachRes] = await Promise.all([
-          apiClient.get('/feedback'),
-          apiClient.get('/feedback?coaching=true'),
-        ])
-        setData(statsRes.data)
-        setCoaching(coachRes.data.coaching || null)
+        const { data } = await apiClient.get('/feedback?coaching=true')
+        setData(data)
+        setCoaching(data.coaching || null)
       } catch (err) {
         setError(err.response?.data?.error || err.message)
       } finally {
