@@ -3,12 +3,13 @@ import { supabase } from '../supabase/client.js'
 
 export class SupabaseAuthRepository extends IAuthRepository {
   async signUp({ email, password, name }) {
-    const { data, error } = await supabase.auth.admin.createUser({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: true,
+      options: { data: { name } },
     })
     if (error) throw new Error(error.message)
+    if (!data.user) throw new Error('회원가입에 실패했습니다')
 
     const { error: profileError } = await supabase.from('users').insert({
       id: data.user.id,
@@ -17,7 +18,7 @@ export class SupabaseAuthRepository extends IAuthRepository {
     })
     if (profileError) throw new Error(profileError.message)
 
-    return { id: data.user.id, email, name }
+    return { id: data.user.id, email, name, emailConfirmed: false }
   }
 
   async login({ email, password }) {
