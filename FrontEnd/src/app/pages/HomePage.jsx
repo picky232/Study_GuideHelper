@@ -148,13 +148,7 @@ function HomePage() {
                   {schedules.map((s) => (
                     <TaskCard
                       key={s.id}
-                      task={{
-                        id: s.id,
-                        title: s.title,
-                        duration_min: s.duration_min,
-                        is_done: s.is_done,
-                        is_review: s.is_review,
-                      }}
+                      task={s}
                       onStart={(task) => setTimerTask(task)}
                     />
                   ))}
