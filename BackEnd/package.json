@@ -7,9 +7,12 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",
     "@google/generative-ai": "^0.24.1",
-    "@supabase/supabase-js": "^2.45.0"
+    "@supabase/supabase-js": "^2.45.0",
+    "firebase-admin": "^14.1.0"
   },
   "devDependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "vercel": "^37.0.0"
   }
 }
