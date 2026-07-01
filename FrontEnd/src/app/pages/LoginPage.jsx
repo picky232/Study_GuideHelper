@@ -11,6 +11,7 @@ function LoginPage() {
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
+    if (error) setError('')
   }
 
   async function handleSubmit(e) {
@@ -21,8 +22,7 @@ function LoginPage() {
       await login(form)
       navigate('/')
     } catch (err) {
-      setForm((prev) => ({ ...prev, password: '' }))
-      setError(err.response?.data?.error || '비밀번호가 올바르지 않습니다')
+      setError(err.response?.data?.error || '이메일 또는 비밀번호가 올바르지 않습니다')
     } finally {
       setLoading(false)
     }

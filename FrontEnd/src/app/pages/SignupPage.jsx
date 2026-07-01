@@ -1,13 +1,16 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../presentation/hooks/AuthContext'
 
 function SignupPage() {
-  const { signUp } = useAuth()
+  const { signUp, login } = useAuth()
+  const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '', name: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
+  const [verifyLoading, setVerifyLoading] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -24,6 +27,24 @@ function SignupPage() {
       setError(err.response?.data?.error || err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleVerify() {
+    setVerifyError('')
+    setVerifyLoading(true)
+    try {
+      await login({ email: form.email, password: form.password })
+      navigate('/')
+    } catch (err) {
+      const msg = err.response?.data?.error || err.message || ''
+      if (msg.toLowerCase().includes('confirm') || msg.toLowerCase().includes('verified') || msg.includes('인증')) {
+        setVerifyError('아직 이메일 인증이 완료되지 않았어요. 메일함을 다시 확인해주세요.')
+      } else {
+        setVerifyError(msg || '인증 확인 중 오류가 발생했어요.')
+      }
+    } finally {
+      setVerifyLoading(false)
     }
   }
 
@@ -47,16 +68,28 @@ function SignupPage() {
               인증 링크를 보냈어요.
             </p>
             <p className="mt-3 text-xs text-gray-400">
-              메일함을 확인하고 링크를 클릭하면<br />가입이 완료됩니다.
+              메일함에서 링크를 클릭한 후<br />아래 버튼을 눌러주세요.
             </p>
-            <p className="mt-2 text-xs text-gray-400">
-              스팸함도 확인해보세요.
-            </p>
+            <p className="mt-1 text-xs text-gray-300">스팸함도 확인해보세요.</p>
+
+            {verifyError && (
+              <div className="mt-4 rounded-xl bg-red-50 px-4 py-3">
+                <p className="text-xs text-red-500">{verifyError}</p>
+              </div>
+            )}
+
+            <button
+              onClick={handleVerify}
+              disabled={verifyLoading}
+              className="mt-5 w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90 disabled:opacity-60"
+            >
+              {verifyLoading ? '확인 중...' : '인증 완료했어요'}
+            </button>
             <Link
               to="/login"
-              className="mt-6 block w-full rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 py-3.5 text-sm font-semibold text-white shadow-md transition hover:opacity-90"
+              className="mt-3 block text-xs text-gray-400 hover:text-purple-600 transition"
             >
-              로그인 페이지로
+              로그인 페이지로 이동
             </Link>
           </div>
         </div>
