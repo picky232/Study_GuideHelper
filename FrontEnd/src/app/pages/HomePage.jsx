@@ -7,7 +7,6 @@ import StudyTimerModal from '../../presentation/components/home/StudyTimerModal'
 import { useGoal } from '../../presentation/hooks/useGoal'
 import { useSchedulesByGoals } from '../../presentation/hooks/useSchedulesByGoals'
 import { mockCoachingMessages } from '../../data/mockData'
-import apiClient from '../../infrastructure/api/client'
 
 function getTodayLabel() {
   const days = ['일', '월', '화', '수', '목', '금', '토']
@@ -86,7 +85,7 @@ function HomePage() {
   const navigate = useNavigate()
   const today = useMemo(() => getTodayDate(), [])
   const { goals, loading: goalLoading, deleteGoal } = useGoal()
-  const { schedulesByGoal, loading: schedLoading, updateDone } = useSchedulesByGoals(
+  const { schedulesByGoal, loading: schedLoading, updateDone, completeTask } = useSchedulesByGoals(
     goals,
     today,
     !goalLoading
@@ -186,17 +185,8 @@ function HomePage() {
         <StudyTimerModal
           task={timerTask}
           onComplete={async () => {
-            updateDone(timerTask.id, timerTask.goal_id, true)
             try {
-              await apiClient.patch('/schedule', { id: timerTask.id, is_done: true })
-              if (!timerTask.is_review && timerTask.goal_id) {
-                await apiClient.post('/review', {
-                  goalId: timerTask.goal_id,
-                  completedDate: getTodayDate(),
-                  title: timerTask.title,
-                  durationMin: timerTask.duration_min,
-                })
-              }
+              await completeTask(timerTask)
             } catch (err) {
               console.error('완료 처리 실패:', err)
             }

@@ -29,7 +29,8 @@ export function useGoal() {
     localStorage.setItem('selectedGoalId', goal.id)
   }
 
-  function deleteGoal(goalId) {
+  async function deleteGoal(goalId) {
+    await apiClient.delete(`/goal?id=${goalId}`)
     const remaining = goals.filter((g) => g.id !== goalId)
     setGoals(remaining)
     if (selectedGoal?.id === goalId) {

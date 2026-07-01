@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import apiClient from '../../infrastructure/api/client'
 
+function getTodayDate() {
+  return new Date().toISOString().split('T')[0]
+}
+
 export function useSchedulesByGoals(goals, date, enabled = true) {
   const [schedulesByGoal, setSchedulesByGoal] = useState({})
   const [loading, setLoading] = useState(true)
@@ -43,5 +47,18 @@ export function useSchedulesByGoals(goals, date, enabled = true) {
     }))
   }
 
-  return { schedulesByGoal, loading, updateDone }
+  async function completeTask(task) {
+    updateDone(task.id, task.goal_id, true)
+    await apiClient.patch('/schedule', { id: task.id, is_done: true })
+    if (!task.is_review && task.goal_id) {
+      await apiClient.post('/review', {
+        goalId: task.goal_id,
+        completedDate: getTodayDate(),
+        title: task.title,
+        durationMin: task.duration_min,
+      })
+    }
+  }
+
+  return { schedulesByGoal, loading, updateDone, completeTask }
 }

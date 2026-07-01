@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import apiClient from '../../../infrastructure/api/client'
 
 function getDday(deadline) {
   const today = new Date()
@@ -19,8 +18,7 @@ function GoalManagerModal({ goals, onClose, onDelete, onAdd }) {
     }
     setDeletingId(goalId)
     try {
-      await apiClient.delete(`/goal?id=${goalId}`)
-      onDelete(goalId)
+      await onDelete(goalId)
       setConfirmId(null)
     } catch (err) {
       alert(err.response?.data?.error || '삭제 실패')

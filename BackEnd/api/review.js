@@ -1,16 +1,8 @@
 import { handleCors } from '../src/infrastructure/http/cors.js'
 import { supabase } from '../src/infrastructure/supabase/client.js'
+import { getUserIdFromToken } from '../src/infrastructure/http/auth.js'
 
 const REVIEW_DAYS = [1, 3, 7, 14]
-
-async function getUserIdFromToken(req) {
-  const auth = req.headers.authorization
-  if (!auth || !auth.startsWith('Bearer ')) throw new Error('인증 토큰이 없습니다')
-  const token = auth.replace('Bearer ', '')
-  const { data, error } = await supabase.auth.getUser(token)
-  if (error || !data.user) throw new Error('유효하지 않은 토큰입니다')
-  return data.user.id
-}
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return
@@ -38,37 +30,38 @@ export default async function handler(req, res) {
     const reviewTitle = `[복습] ${title}`
     const reviewDuration = Math.max(10, Math.ceil(durationMin * 0.5))
 
-    const toInsert = []
+    const candidates = []
     for (let i = 0; i < REVIEW_DAYS.length; i++) {
       const reviewDate = new Date(base)
       reviewDate.setDate(reviewDate.getDate() + REVIEW_DAYS[i])
       if (reviewDate > deadline) continue
+      candidates.push({ dateStr: reviewDate.toISOString().split('T')[0], round: i + 1 })
+    }
 
-      const dateStr = reviewDate.toISOString().split('T')[0]
+    const candidateDates = candidates.map((c) => c.dateStr)
+    const { data: existingRows } = await supabase
+      .from('schedules')
+      .select('date')
+      .eq('user_id', userId)
+      .eq('goal_id', goalId)
+      .eq('title', reviewTitle)
+      .eq('is_review', true)
+      .in('date', candidateDates.length > 0 ? candidateDates : [''])
 
-      const { data: existing } = await supabase
-        .from('schedules')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('goal_id', goalId)
-        .eq('date', dateStr)
-        .eq('title', reviewTitle)
-        .eq('is_review', true)
-        .maybeSingle()
+    const existingDates = new Set((existingRows || []).map((r) => r.date))
 
-      if (existing) continue
-
-      toInsert.push({
+    const toInsert = candidates
+      .filter((c) => !existingDates.has(c.dateStr))
+      .map((c) => ({
         user_id: userId,
         goal_id: goalId,
-        date: dateStr,
+        date: c.dateStr,
         title: reviewTitle,
         duration_min: reviewDuration,
         is_done: false,
         is_review: true,
-        review_round: i + 1,
-      })
-    }
+        review_round: c.round,
+      }))
 
     if (toInsert.length > 0) {
       const { error } = await supabase.from('schedules').insert(toInsert)
