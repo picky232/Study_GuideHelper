@@ -22,7 +22,12 @@ function LoginPage() {
       await login(form)
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.error || '이메일 또는 비밀번호가 올바르지 않습니다')
+      const msg = err.response?.data?.error || ''
+      setError(
+        msg.toLowerCase().includes('invalid login') || msg.toLowerCase().includes('invalid credentials')
+          ? '이메일 또는 비밀번호가 올바르지 않습니다'
+          : msg || '이메일 또는 비밀번호가 올바르지 않습니다'
+      )
     } finally {
       setLoading(false)
     }
