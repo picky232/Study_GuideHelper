@@ -14,6 +14,14 @@ export default async function handler(req, res) {
     const generator = new ClaudePlanGenerator()
     const tasks = await generator.generate({ subject, examType, examFormat, deadline, dailyHours, completedRange, weakPoints })
 
+    // 재생성 시 기존 계획 제거 — 없으면 "다시 생성하기"마다 태스크가 중복 누적됨
+    const { error: delError } = await supabase
+      .from('schedules')
+      .delete()
+      .eq('user_id', userId)
+      .eq('goal_id', goalId)
+    if (delError) throw new Error(delError.message)
+
     const schedules = tasks.map((t) => ({
       goal_id: goalId,
       user_id: userId,

@@ -90,15 +90,22 @@ export default async function handler(req, res) {
 - 학습·성장·끈기·도전 주제
 - 다른 설명 없이 명언만 출력`
 
-    const message = await anthropic.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 120,
-      messages: [{ role: 'user', content: prompt }],
-    })
+    // 명언 생성 실패해도 통계는 반환
+    let coaching = ''
+    try {
+      const message = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 120,
+        messages: [{ role: 'user', content: prompt }],
+      })
+      coaching = message.content[0]?.text?.trim() || ''
+    } catch {
+      coaching = ''
+    }
 
     return res.status(200).json({
       ...statsPayload,
-      coaching: message.content[0]?.text?.trim() || '',
+      coaching,
     })
   } catch (error) {
     return res.status(500).json({ error: error.message })

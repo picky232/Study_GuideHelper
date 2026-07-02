@@ -49,15 +49,23 @@ ${weakSection}
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
+      max_tokens: 16000,
       messages: [{ role: 'user', content: prompt }],
     })
+    if (message.stop_reason === 'max_tokens') {
+      throw new Error('계획이 너무 길어 생성에 실패했습니다. 다시 시도해주세요')
+    }
     const text = message.content[0].text
 
     const jsonMatch = text.match(/\[[\s\S]*\]/)
     if (!jsonMatch) throw new Error('AI 응답에서 계획을 파싱할 수 없습니다')
 
-    const tasks = JSON.parse(jsonMatch[0])
+    let tasks
+    try {
+      tasks = JSON.parse(jsonMatch[0])
+    } catch {
+      throw new Error('AI 응답 파싱에 실패했습니다. 다시 시도해주세요')
+    }
     return tasks.map((t) => ({
       date: t.date,
       title: t.title,
