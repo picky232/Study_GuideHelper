@@ -1,5 +1,6 @@
 import { useFcm } from '../../presentation/hooks/useFcm'
 import { useAuth } from '../../presentation/hooks/AuthContext'
+import { useFocusSettings } from '../../presentation/hooks/useFocusSettings'
 
 function Toggle({ on, onChange, disabled }) {
   return (
@@ -13,9 +14,12 @@ function Toggle({ on, onChange, disabled }) {
   )
 }
 
+const FOCUS_PRESETS = [0, 5, 10, 15, 20, 30]
+
 function SettingsPage() {
   const { permission, enabled, loading, error, requestPermission, disableNotification } = useFcm()
   const { user, logout } = useAuth()
+  const { minFocusMinutes, setMinFocusMinutes } = useFocusSettings()
 
   async function handleToggle(turnOn) {
     if (turnOn) {
@@ -69,6 +73,50 @@ function SettingsPage() {
           </div>
 
           {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+        </div>
+
+        {/* 집중 잠금 */}
+        <div className="rounded-3xl bg-white p-5 shadow-sm">
+          <h2 className="mb-1 text-sm font-bold text-gray-700">집중 잠금</h2>
+          <p className="mb-4 text-xs text-gray-400">
+            타이머 시작 후 최소 집중 시간 동안 완료·닫기가 잠겨요. 앱을 벗어나면 타이머가 멈춰요.
+          </p>
+
+          <div className="grid grid-cols-3 gap-2">
+            {FOCUS_PRESETS.map((m) => (
+              <button
+                key={m}
+                onClick={() => setMinFocusMinutes(m)}
+                className={`rounded-xl py-2.5 text-sm font-medium transition ${
+                  minFocusMinutes === m
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {m === 0 ? '끄기' : `${m}분`}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-3 flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5">
+            <span className="flex-shrink-0 text-xs text-gray-500">직접 입력</span>
+            <input
+              type="number"
+              min="0"
+              max="180"
+              value={minFocusMinutes || ''}
+              placeholder="0"
+              onChange={(e) => setMinFocusMinutes(parseInt(e.target.value, 10) || 0)}
+              className="w-full bg-transparent text-center text-base font-semibold text-gray-800 outline-none"
+            />
+            <span className="flex-shrink-0 text-xs text-gray-500">분</span>
+          </div>
+
+          {minFocusMinutes > 0 && (
+            <p className="mt-2 text-xs text-purple-500">
+              타이머 시작 후 {minFocusMinutes}분 동안 잠금이 유지돼요
+            </p>
+          )}
         </div>
 
         {/* 계정 */}

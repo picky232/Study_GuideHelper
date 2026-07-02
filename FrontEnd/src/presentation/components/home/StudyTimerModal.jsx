@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { getMinFocusMinutes } from '../../hooks/useFocusSettings'
 
 function formatTime(seconds) {
   const m = Math.floor(seconds / 60)
@@ -8,9 +9,50 @@ function formatTime(seconds) {
 
 function StudyTimerModal({ task, onComplete, onClose }) {
   const totalSeconds = task.duration_min * 60
+  const minFocusSeconds = Math.min(getMinFocusMinutes() * 60, totalSeconds)
   const [timeLeft, setTimeLeft] = useState(totalSeconds)
   const [running, setRunning] = useState(true)
   const [done, setDone] = useState(false)
+  const [interrupted, setInterrupted] = useState(false)
+  const [leaveCount, setLeaveCount] = useState(0)
+  const wakeLockRef = useRef(null)
+
+  const elapsed = totalSeconds - timeLeft
+  const locked = !done && elapsed < minFocusSeconds
+
+  // 앱 이탈 감지 — 화면 벗어나면 타이머 정지 (시간 안 줄어듦)
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.hidden && !done) {
+        setRunning(false)
+        setInterrupted(true)
+        setLeaveCount((c) => c + 1)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [done])
+
+  // Wake Lock — 타이머 도는 동안 화면 꺼짐 방지
+  useEffect(() => {
+    let cancelled = false
+    async function acquire() {
+      if (!('wakeLock' in navigator)) return
+      try {
+        const lock = await navigator.wakeLock.request('screen')
+        if (cancelled) lock.release()
+        else wakeLockRef.current = lock
+      } catch {
+        // 배터리 절약 모드 등으로 거부될 수 있음 — 무시
+      }
+    }
+    if (running && !done) acquire()
+    return () => {
+      cancelled = true
+      wakeLockRef.current?.release?.()
+      wakeLockRef.current = null
+    }
+  }, [running, done])
 
   useEffect(() => {
     if (!running || done) return
@@ -29,21 +71,36 @@ function StudyTimerModal({ task, onComplete, onClose }) {
     onComplete()
   }, [onComplete])
 
+  function handleResume() {
+    setInterrupted(false)
+    setRunning(true)
+  }
+
   const progress = (totalSeconds - timeLeft) / totalSeconds
   const radius = 80
   const circumference = 2 * Math.PI * radius
   const offset = circumference * (1 - progress)
+  const lockRemaining = Math.max(0, minFocusSeconds - elapsed)
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gray-950/95 px-6 text-white">
-      {/* 닫기 */}
+      {/* 닫기 — 최소 집중 시간 전엔 잠금 */}
       <button
-        onClick={onClose}
-        className="absolute right-5 top-5 rounded-full p-2 text-gray-400 transition hover:bg-white/10 hover:text-white"
+        onClick={locked ? undefined : onClose}
+        disabled={locked}
+        className={`absolute right-5 top-5 rounded-full p-2 transition ${
+          locked ? 'cursor-not-allowed text-gray-700' : 'text-gray-400 hover:bg-white/10 hover:text-white'
+        }`}
       >
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
+        {locked ? (
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+        ) : (
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        )}
       </button>
 
       {/* 태스크 정보 */}
@@ -52,13 +109,16 @@ function StudyTimerModal({ task, onComplete, onClose }) {
           <span className="rounded-full bg-orange-500/20 px-2.5 py-0.5 text-xs font-semibold text-orange-400">복습</span>
         )}
         <span className="text-xs font-medium text-gray-400">{task.duration_min}분 집중</span>
+        {leaveCount > 0 && (
+          <span className="rounded-full bg-red-500/20 px-2.5 py-0.5 text-xs font-semibold text-red-400">이탈 {leaveCount}회</span>
+        )}
       </div>
       <h2 className="mb-10 text-center text-lg font-bold leading-snug text-white">
         {task.title}
       </h2>
 
       {/* 원형 타이머 */}
-      <div className="relative mb-10 flex items-center justify-center">
+      <div className="relative mb-6 flex items-center justify-center">
         <svg width="200" height="200" className="-rotate-90">
           <circle cx="100" cy="100" r={radius} fill="none" stroke="#374151" strokeWidth="8" />
           <circle
@@ -88,6 +148,24 @@ function StudyTimerModal({ task, onComplete, onClose }) {
         </div>
       </div>
 
+      {/* 집중 잠금 안내 */}
+      {locked && !interrupted && (
+        <p className="mb-4 flex items-center gap-1.5 text-xs text-gray-400">
+          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+          </svg>
+          {formatTime(lockRemaining)} 후 잠금 해제
+        </p>
+      )}
+
+      {/* 이탈 경고 */}
+      {interrupted && !done && (
+        <div className="mb-4 w-full max-w-xs rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center">
+          <p className="text-sm font-semibold text-red-400">집중이 끊겼어요!</p>
+          <p className="mt-0.5 text-xs text-gray-400">앱을 벗어나면 타이머가 멈춰요</p>
+        </div>
+      )}
+
       {done ? (
         <div className="flex w-full max-w-xs flex-col gap-3">
           <p className="mb-1 text-center text-sm text-gray-300">학습 완료! 정말 잘 했어요 🎉</p>
@@ -101,16 +179,23 @@ function StudyTimerModal({ task, onComplete, onClose }) {
       ) : (
         <div className="flex w-full max-w-xs flex-col gap-3">
           <button
-            onClick={() => setRunning((r) => !r)}
-            className="w-full rounded-2xl bg-white/10 py-4 text-base font-semibold text-white backdrop-blur transition hover:bg-white/20 active:scale-[0.98]"
+            onClick={interrupted ? handleResume : () => setRunning((r) => !r)}
+            className={`w-full rounded-2xl py-4 text-base font-semibold text-white backdrop-blur transition active:scale-[0.98] ${
+              interrupted ? 'bg-purple-600 hover:bg-purple-700' : 'bg-white/10 hover:bg-white/20'
+            }`}
           >
-            {running ? '일시정지' : '계속하기'}
+            {interrupted ? '다시 집중하기' : running ? '일시정지' : '계속하기'}
           </button>
           <button
-            onClick={handleComplete}
-            className="w-full rounded-2xl border border-white/20 py-3.5 text-sm font-medium text-gray-300 transition hover:border-white/40 hover:text-white active:scale-[0.98]"
+            onClick={locked ? undefined : handleComplete}
+            disabled={locked}
+            className={`w-full rounded-2xl border py-3.5 text-sm font-medium transition active:scale-[0.98] ${
+              locked
+                ? 'cursor-not-allowed border-white/10 text-gray-600'
+                : 'border-white/20 text-gray-300 hover:border-white/40 hover:text-white'
+            }`}
           >
-            일찍 완료하기
+            {locked ? `일찍 완료하기 (${formatTime(lockRemaining)} 후 가능)` : '일찍 완료하기'}
           </button>
         </div>
       )}
