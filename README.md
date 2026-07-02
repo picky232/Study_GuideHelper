@@ -117,6 +117,8 @@ vercel dev
 - [x] 7/2 — Vercel Cron 알림 자동화 (F4) + PWA 설정 (vite-plugin-pwa)
 - [x] 7/3 — 통합 테스트 + DDD 정리 (CalendarPage, useFeedback API 최적화)
 - [x] 7/4 — 최종 테스트 + Vercel 배포 완료
+- [x] 7/5 — 프로덕션 E2E 통합 테스트 (로그인·계획생성·완료체크·복습·피드백·FCM 발송) + 서울 리전(icn1) 최적화
+- [x] 7/6 — 버그 수정 (계획 재생성 중복 누적, FCM 토큰 중복 등록, AI 응답 잘림·에러 핸들링)
 
 상세 체크리스트는 `plan.md` 참고.
 
