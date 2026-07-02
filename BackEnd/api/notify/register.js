@@ -16,18 +16,31 @@ export default async function handler(req, res) {
     const { token } = req.body
     if (!token) return res.status(400).json({ error: 'token이 없습니다' })
 
-    // 기존 토큰 있으면 skip
+    // 같은 토큰 행 조회 (중복 행 존재 가능성 대비 목록으로 조회)
     const { data: existing } = await supabase
       .from('fcm_tokens')
-      .select('id')
+      .select('id, user_id')
       .eq('token', token)
-      .maybeSingle()
+      .order('created_at', { ascending: false })
 
-    if (!existing) {
+    if (!existing || existing.length === 0) {
       const { error } = await supabase
         .from('fcm_tokens')
         .insert({ user_id: userId, token })
       if (error) throw new Error(error.message)
+    } else {
+      // 토큰은 기기(브라우저) 단위 — 마지막 로그인 사용자에게 귀속
+      if (existing[0].user_id !== userId) {
+        await supabase
+          .from('fcm_tokens')
+          .update({ user_id: userId })
+          .eq('id', existing[0].id)
+      }
+      // 레이스 등으로 생긴 중복 행 정리
+      if (existing.length > 1) {
+        const extraIds = existing.slice(1).map((r) => r.id)
+        await supabase.from('fcm_tokens').delete().in('id', extraIds)
+      }
     }
 
     return res.status(200).json({ ok: true })

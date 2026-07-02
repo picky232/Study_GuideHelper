@@ -36,7 +36,10 @@ export default async function handler(req, res) {
     let sent = 0
     const failed = []
 
-    for (const { token, user_id } of tokens) {
+    // 같은 토큰 중복 행 있어도 기기당 1회만 발송
+    const uniqueTokens = [...new Map(tokens.map((t) => [t.token, t])).values()]
+
+    for (const { token, user_id } of uniqueTokens) {
       const count = countByUser[user_id] || 0
       if (count === 0) continue
 
