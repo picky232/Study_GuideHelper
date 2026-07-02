@@ -8,6 +8,11 @@ export default async function handler(req, res) {
   if (handleCors(req, res)) return
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' })
 
+  // Vercel Cron 전용 — CRON_SECRET 없이는 발송 불가 (스팸 방지)
+  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: '인증이 필요합니다' })
+  }
+
   try {
     const today = new Date().toISOString().split('T')[0]
 
