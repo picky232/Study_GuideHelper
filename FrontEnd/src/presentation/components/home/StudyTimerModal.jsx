@@ -7,15 +7,35 @@ function formatTime(seconds) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
+// 태스크별 타이머 진행 상태 저장 — 닫았다 다시 열면 남은 시간부터 이어감
+function loadTimerState(taskId, totalSeconds) {
+  try {
+    const raw = localStorage.getItem(`focusTimer:${taskId}`)
+    if (!raw) return null
+    const saved = JSON.parse(raw)
+    if (typeof saved.timeLeft !== 'number' || saved.timeLeft <= 0 || saved.timeLeft > totalSeconds) return null
+    return saved
+  } catch {
+    return null
+  }
+}
+
 function StudyTimerModal({ task, onComplete, onClose }) {
   const totalSeconds = task.duration_min * 60
   const minFocusSeconds = Math.min(getMinFocusMinutes() * 60, totalSeconds)
-  const [timeLeft, setTimeLeft] = useState(totalSeconds)
+  const savedState = loadTimerState(task.id, totalSeconds)
+  const [timeLeft, setTimeLeft] = useState(savedState?.timeLeft ?? totalSeconds)
   const [running, setRunning] = useState(true)
   const [done, setDone] = useState(false)
   const [interrupted, setInterrupted] = useState(false)
-  const [leaveCount, setLeaveCount] = useState(0)
+  const [leaveCount, setLeaveCount] = useState(savedState?.leaveCount ?? 0)
   const wakeLockRef = useRef(null)
+
+  // 진행 상태 저장 (완료 전까지)
+  useEffect(() => {
+    if (done) return
+    localStorage.setItem(`focusTimer:${task.id}`, JSON.stringify({ timeLeft, leaveCount }))
+  }, [task.id, timeLeft, leaveCount, done])
 
   const elapsed = totalSeconds - timeLeft
   const locked = !done && elapsed < minFocusSeconds
@@ -68,8 +88,9 @@ function StudyTimerModal({ task, onComplete, onClose }) {
   const handleComplete = useCallback(() => {
     setDone(true)
     setRunning(false)
+    localStorage.removeItem(`focusTimer:${task.id}`)
     onComplete()
-  }, [onComplete])
+  }, [onComplete, task.id])
 
   function handleResume() {
     setInterrupted(false)
