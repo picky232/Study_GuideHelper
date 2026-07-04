@@ -2,11 +2,12 @@ import { handleCors } from '../../src/infrastructure/http/cors.js'
 import { supabase } from '../../src/infrastructure/supabase/client.js'
 import { getMessagingClient } from '../../src/infrastructure/fcm/client.js'
 
-// Vercel Cron 또는 수동 호출: POST /api/notify/send
-// body: { userId? } — 없으면 전체 사용자 발송
+// Vercel Cron(GET) 또는 수동 호출(GET/POST): /api/notify/send
 export default async function handler(req, res) {
   if (handleCors(req, res)) return
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' })
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' })
+  }
 
   // Vercel Cron 전용 — CRON_SECRET 없이는 발송 불가 (스팸 방지)
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
