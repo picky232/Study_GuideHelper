@@ -16,6 +16,9 @@ messaging.onBackgroundMessage((payload) => {
     body: body || '학습 알림이 도착했습니다.',
     icon: '/favicon.svg',
     badge: '/favicon.svg',
+    // 포그라운드 핸들러와 같은 tag — 같은 메시지가 두 경로로 동시에 와도
+    // OS가 알림 하나로 합쳐서 중복 표시를 막음
+    tag: 'study-reminder',
     data: payload.fcmOptions || {},
   })
 })

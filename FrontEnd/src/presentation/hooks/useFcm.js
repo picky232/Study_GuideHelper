@@ -19,7 +19,9 @@ export function useFcm() {
     const unsubscribe = onForegroundMessage((payload) => {
       const { title, body } = payload.notification || {}
       if (Notification.permission === 'granted') {
-        new Notification(title || '학습 설계 도우미', { body, icon: '/favicon.svg' })
+        // 서비스워커(백그라운드 핸들러)와 같은 tag를 사용 — 동일 메시지가
+        // 두 경로로 동시에 뜨더라도 OS가 하나로 합쳐 중복 표시를 막음
+        new Notification(title || '학습 설계 도우미', { body, icon: '/favicon.svg', tag: 'study-reminder' })
       }
     })
 
