@@ -43,6 +43,15 @@ export default async function handler(req, res) {
       }
     }
 
+    // 서비스워커 갱신 등으로 토큰이 바뀌면 예전 토큰(문자열이 다른 행)이
+    // 서버에 남아 중복 발송의 원인이 됨 — 이 사용자의 다른 토큰은 모두 정리
+    // (클라이언트 로컬 기억에 의존하지 않는 서버 측 단일 토큰 보장)
+    await supabase
+      .from('fcm_tokens')
+      .delete()
+      .eq('user_id', userId)
+      .neq('token', token)
+
     return res.status(200).json({ ok: true })
   } catch (error) {
     return res.status(500).json({ error: error.message })
