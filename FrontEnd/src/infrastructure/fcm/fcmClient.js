@@ -15,6 +15,11 @@ function getApp() {
   return getApps().length ? getApps()[0] : initializeApp(firebaseConfig)
 }
 
+// 브라우저에서만 재현되는 오류를 서버 로그로 남겨 원격 기기 없이 진단하기 위한 용도
+export function reportFcmError(context, err) {
+  apiClient.post('/notify/debug-log', { context, message: err?.message, stack: err?.stack }).catch(() => null)
+}
+
 export async function requestNotificationPermission() {
   const permission = await Notification.requestPermission()
   if (permission !== 'granted') return null

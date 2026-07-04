@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { requestNotificationPermission, onForegroundMessage } from '../../infrastructure/fcm/fcmClient'
+import { requestNotificationPermission, onForegroundMessage, reportFcmError } from '../../infrastructure/fcm/fcmClient'
 import apiClient from '../../infrastructure/api/client'
 
 const NOTIFY_KEY = 'notify_enabled'
@@ -14,7 +14,7 @@ export function useFcm() {
     if (permission !== 'granted') return
 
     // 이미 허용된 경우 토큰 갱신 등록
-    requestNotificationPermission().catch(() => null)
+    requestNotificationPermission().catch((err) => reportFcmError('auto-register', err))
 
     const unsubscribe = onForegroundMessage((payload) => {
       const { title, body } = payload.notification || {}
