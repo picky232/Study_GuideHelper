@@ -28,7 +28,14 @@ export async function requestNotificationPermission() {
   })
 
   if (token) {
+    // 서비스워커 갱신 등으로 새 토큰이 발급된 경우 예전 토큰이 남아있으면
+    // 발송 시 중복 알림이 감 — 등록 전 기존 토큰 정리
+    const lastToken = localStorage.getItem('fcm_last_token')
+    if (lastToken && lastToken !== token) {
+      await apiClient.delete('/notify/unregister').catch(() => null)
+    }
     await apiClient.post('/notify/register', { token })
+    localStorage.setItem('fcm_last_token', token)
   }
 
   return token
