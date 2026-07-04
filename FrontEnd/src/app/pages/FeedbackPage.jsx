@@ -1,4 +1,11 @@
 import { useFeedback } from '../../presentation/hooks/useFeedback'
+import { useGoal } from '../../presentation/hooks/useGoal'
+
+function getDday(deadline) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Math.ceil((new Date(deadline) - today) / (1000 * 60 * 60 * 24))
+}
 
 function RateBar({ rate }) {
   return (
@@ -13,6 +20,7 @@ function RateBar({ rate }) {
 
 function FeedbackPage() {
   const { data, coaching, loading, error } = useFeedback()
+  const { goals } = useGoal()
 
   if (loading) {
     return (
@@ -81,6 +89,31 @@ function FeedbackPage() {
           </div>
           <p className="text-sm leading-relaxed text-gray-700 italic">{coaching || '명언을 불러오지 못했어요.'}</p>
         </div>
+
+        {/* 목표별 남은 기간 */}
+        {goals.length > 0 && (
+          <div className="rounded-3xl bg-white p-5 shadow-sm">
+            <p className="mb-4 text-sm font-semibold text-gray-600">목표별 남은 기간</p>
+            <div className="space-y-2.5">
+              {goals.map((g) => {
+                const dday = getDday(g.deadline)
+                return (
+                  <div key={g.id} className="flex items-center justify-between rounded-2xl bg-gray-50 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-700">{g.subject}</p>
+                      <p className="mt-0.5 text-xs text-gray-400">{g.exam_type} · {g.deadline}</p>
+                    </div>
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      dday > 0 ? 'bg-purple-100 text-purple-600' : 'bg-red-100 text-red-500'
+                    }`}>
+                      {dday > 0 ? `D-${dday}` : '마감'}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* 일별 달성률 */}
         {dailyStats.length > 0 && (
