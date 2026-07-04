@@ -22,9 +22,25 @@ export async function requestNotificationPermission() {
   const app = getApp()
   const messaging = getMessaging(app)
 
+  // 과거에 스코프 '/'로 등록됐던 구버전 FCM 서비스워커가 남아있으면
+  // 새 스코프로 등록해도 둘 다 살아있어 알림이 계속 중복될 수 있음 — 정리
+  const existingRegs = await navigator.serviceWorker.getRegistrations()
+  for (const reg of existingRegs) {
+    if (reg.active?.scriptURL.includes('firebase-messaging-sw.js') && reg.scope.endsWith('/')) {
+      await reg.unregister()
+    }
+  }
+
+  // PWA 캐싱용 sw.js와 스코프가 겹치면 두 서비스워커가 같은 푸시 이벤트를
+  // 동시에 처리해 알림이 2번 뜸 — FCM 전용 스코프를 분리해 충돌 방지
+  // (Firebase 공식 권장 패턴: /firebase-cloud-messaging-push-scope)
+  const fcmSwRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+    scope: '/firebase-cloud-messaging-push-scope',
+  })
+
   const token = await getToken(messaging, {
     vapidKey: VAPID_KEY,
-    serviceWorkerRegistration: await navigator.serviceWorker.register('/firebase-messaging-sw.js'),
+    serviceWorkerRegistration: fcmSwRegistration,
   })
 
   if (token) {
