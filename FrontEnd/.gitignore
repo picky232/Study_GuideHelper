@@ -28,5 +28,3 @@ dist-ssr
 *.sw?
 .vercel
 .env*
-# trigger 1783131014
-# verify 1783131287
