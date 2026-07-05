@@ -49,7 +49,7 @@ export async function requestNotificationPermission() {
   })
 
   if (token) {
-    await apiClient.post('/notify/register', { token })
+    await apiClient.post('/notify/token', { token })
   }
 
   return token

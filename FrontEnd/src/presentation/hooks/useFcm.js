@@ -49,7 +49,7 @@ export function useFcm() {
     setLoading(true)
     setError(null)
     try {
-      await apiClient.delete('/notify/unregister')
+      await apiClient.delete('/notify/token')
       setEnabled(false)
       localStorage.setItem(NOTIFY_KEY, 'false')
     } catch (err) {
