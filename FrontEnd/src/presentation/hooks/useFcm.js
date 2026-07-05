@@ -17,6 +17,13 @@ export function useFcm() {
     requestNotificationPermission().catch((err) => reportFcmError('auto-register', err))
 
     const unsubscribe = onForegroundMessage((payload) => {
+      // 이 포그라운드 경로가 실제로 발동됐는지 로그로 남김 (백그라운드 SW의
+      // sw-onBackgroundMessage 로그와 개수 비교해 중복 원인을 확정하기 위함)
+      apiClient.post('/notify/debug-log', {
+        context: 'foreground-onMessage',
+        message: `title=${payload.notification?.title}`,
+      }).catch(() => null)
+
       const { title, body } = payload.notification || {}
       if (Notification.permission === 'granted') {
         // 서비스워커(백그라운드 핸들러)와 같은 tag를 사용 — 동일 메시지가
