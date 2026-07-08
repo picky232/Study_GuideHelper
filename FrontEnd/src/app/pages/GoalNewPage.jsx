@@ -199,7 +199,8 @@ function GoalNewPage() {
                 value={form.deadline}
                 min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
                 onChange={(e) => update('deadline', e.target.value)}
-                className="w-full min-w-0 box-border rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-purple-400 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                className="w-full min-w-0 appearance-none box-border rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-purple-400 focus:bg-white focus:ring-2 focus:ring-purple-100"
+                style={{ WebkitAppearance: 'none' }}
               />
               {dday > 0 && (
                 <p className="mt-1.5 text-xs font-semibold text-purple-500">D-{dday} · {dday}일 남았어요</p>
