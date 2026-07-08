@@ -1,6 +1,6 @@
 # 시연 시나리오 (발표용)
 
-> 배포 URL: https://study-guide-helper-frontend.vercel.app
+> 배포 URL: https://study-guidehelperfe.vercel.app
 
 ## 준비물
 

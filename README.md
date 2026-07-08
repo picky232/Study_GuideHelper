@@ -84,7 +84,7 @@ Study_GuideHelper/
 
 | 서비스 | URL |
 |--------|-----|
-| 프론트엔드 | https://study-guide-helper-frontend.vercel.app |
+| 프론트엔드 | https://study-guidehelperfe.vercel.app |
 | 백엔드 API | https://study-guide-helper.vercel.app/api |
 
 ## 실행 방법 (로컬)

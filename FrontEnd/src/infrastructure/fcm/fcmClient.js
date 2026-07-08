@@ -20,6 +20,23 @@ export function reportFcmError(context, err) {
   apiClient.post('/notify/debug-log', { context, message: err?.message, stack: err?.stack }).catch(() => null)
 }
 
+// register() 직후엔 SW가 아직 installing 상태일 수 있는데, 그 상태에서
+// PushManager.subscribe()(getToken 내부에서 호출)를 부르면 "no active
+// Service Worker" 에러가 남 — activated가 될 때까지 기다림
+function waitForActivation(registration) {
+  if (registration.active) return Promise.resolve(registration)
+  const worker = registration.installing || registration.waiting
+  if (!worker) return Promise.resolve(registration)
+  return new Promise((resolve) => {
+    worker.addEventListener('statechange', function handler() {
+      if (worker.state === 'activated') {
+        worker.removeEventListener('statechange', handler)
+        resolve(registration)
+      }
+    })
+  })
+}
+
 // 기기에 등록된 서비스워커 목록(스코프·스크립트·상태)을 서버 로그로 남겨
 // 중복 알림 원인(오래된 서비스워커 잔존 등)을 원격에서 진단하기 위한 용도
 export async function reportServiceWorkerState(context) {
@@ -61,6 +78,7 @@ export async function requestNotificationPermission() {
   const fcmSwRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
     scope: '/firebase-cloud-messaging-push-scope',
   })
+  await waitForActivation(fcmSwRegistration)
 
   const token = await getToken(messaging, {
     vapidKey: VAPID_KEY,
